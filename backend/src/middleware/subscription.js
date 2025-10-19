@@ -11,6 +11,15 @@ export const checkSubscription = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Gym not found' });
     }
 
+    // Check if gym is suspended
+    if (gym.status === 'suspended') {
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Gym is suspended by admin',
+        gym_suspended: true 
+      });
+    }
+
     // Check if subscription exists and is active
     if (!gym.subscription_id || gym.subscription_status !== 'active') {
       return res.status(403).json({ 

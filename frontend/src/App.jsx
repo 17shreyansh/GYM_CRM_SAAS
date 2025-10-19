@@ -18,6 +18,7 @@ import Attendance from './pages/Attendance';
 import MemberAttendance from './pages/MemberAttendance';
 import GymQR from './pages/GymQR';
 import GymSubscriptions from './pages/GymSubscriptions';
+import GymSuspended from './pages/GymSuspended';
 import MemberDashboard from './pages/MemberDashboard';
 import MemberProfile from './pages/MemberProfile';
 import Support from './pages/Support';
@@ -96,6 +97,7 @@ const AppRoutes = () => {
           <GymSubscriptions />
         </ProtectedRoute>
       } />
+      <Route path="/gym-suspended" element={<GymSuspended />} />
       <Route path="/dashboard" element={
         <ProtectedRoute allowedRoles={['member']}>
           <MemberDashboard />

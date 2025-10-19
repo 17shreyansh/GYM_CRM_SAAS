@@ -66,7 +66,7 @@ export const createGym = async (req, res) => {
       business_number,
       plan_type: (plan_type || 'basic').trim().toLowerCase(),
       owner_user_id: req.user._id,
-      status: 'approved'
+      status: 'active'
     });
 
     await gym.save();

@@ -69,7 +69,7 @@ const gymSchema = new mongoose.Schema({
   // System / Internal Fields
   owner_user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 
-  status: { type: String, enum: ['pending', 'approved', 'rejected', 'suspended', 'deleted'], default: 'pending' },
+  status: { type: String, enum: ['active', 'suspended', 'deleted'], default: 'active' },
   subscription_status: { type: String, enum: ['active', 'inactive', 'cancelled', 'expired'], default: 'inactive' },
   subscription_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Subscription' },
   subscription_plan: { type: mongoose.Schema.Types.ObjectId, ref: 'SubscriptionPlan' },

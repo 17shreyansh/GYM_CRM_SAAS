@@ -45,7 +45,7 @@ const AdminGyms = () => {
     },
     { title: 'Status', dataIndex: 'status', key: 'status',
       render: (status) => (
-        <Tag color={status === 'approved' ? 'green' : status === 'pending' ? 'orange' : 'red'}>
+        <Tag color={status === 'active' ? 'green' : status === 'suspended' ? 'red' : 'gray'}>
           {status?.toUpperCase()}
         </Tag>
       )
@@ -59,19 +59,14 @@ const AdminGyms = () => {
           <Button size="small" onClick={() => fetchGymDetails(record)}>
             View Details
           </Button>
-          {record.status === 'pending' && (
-            <>
-              <Button size="small" type="primary" onClick={() => updateGymStatus(record._id, 'approved')}>
-                Approve
-              </Button>
-              <Button size="small" danger onClick={() => updateGymStatus(record._id, 'rejected')}>
-                Reject
-              </Button>
-            </>
+          {record.status === 'active' && (
+            <Button size="small" danger onClick={() => updateGymStatus(record._id, 'suspended')}>
+              Suspend
+            </Button>
           )}
-          {record.status === 'approved' && (
-            <Button size="small" danger onClick={() => updateGymStatus(record._id, 'banned')}>
-              Ban
+          {record.status === 'suspended' && (
+            <Button size="small" type="primary" onClick={() => updateGymStatus(record._id, 'active')}>
+              Activate
             </Button>
           )}
         </>

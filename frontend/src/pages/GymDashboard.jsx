@@ -138,9 +138,11 @@ const GymDashboard = () => {
             <p>{gym.location?.city}, {gym.location?.state} • {(gym.plan_type || 'basic').trim().toUpperCase()} Plan</p>
           </div>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px' }}>
-            <div className={`status-badge ${stats.gym_info?.status === 'approved' ? 'success' : 'warning'}`}>
-              {stats.gym_info?.status?.toUpperCase()}
-            </div>
+            {stats.gym_info?.status === 'suspended' && (
+              <div className="status-badge warning">
+                SUSPENDED
+              </div>
+            )}
             <div className={`status-badge ${stats.subscription?.status === 'active' ? 'success' : 'warning'}`}>
               {stats.subscription?.plan_name || 'NO PLAN'}
             </div>
@@ -249,12 +251,14 @@ const GymDashboard = () => {
                     <span style={{ color: 'var(--text-secondary)' }}>Display Name:</span>
                     <span style={{ fontWeight: '500' }}>{stats.gym_info?.gym_display_name}</span>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: 'var(--text-secondary)' }}>Status:</span>
-                    <Tag color={stats.gym_info?.status === 'approved' ? 'green' : 'orange'}>
-                      {stats.gym_info?.status?.toUpperCase()}
-                    </Tag>
-                  </div>
+                  {stats.gym_info?.status === 'suspended' && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>Status:</span>
+                      <Tag color="red">
+                        SUSPENDED
+                      </Tag>
+                    </div>
+                  )}
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span style={{ color: 'var(--text-secondary)' }}>Plan:</span>
                     <Tag color={stats.subscription?.status === 'active' ? 'green' : 'orange'}>
