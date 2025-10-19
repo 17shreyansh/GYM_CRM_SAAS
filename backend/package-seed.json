@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "seed": "node src/utils/seeder.js"
+  }
+}
