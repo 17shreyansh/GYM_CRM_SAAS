@@ -1,6 +1,6 @@
 import React from 'react';
 import { Form, Input, Button, Card, message, Tabs } from 'antd';
-import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { UserOutlined, LockOutlined, ShopOutlined, TeamOutlined } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -18,11 +18,11 @@ const Login = () => {
     }
   };
 
-  const onRegister = async (values) => {
+  const onMemberRegister = async (values) => {
     try {
-      const user = await register(values);
+      const user = await register({ ...values, role: 'member' });
       message.success('Registration successful');
-      navigate(user.role === 'admin' ? '/admin' : user.role === 'gym_owner' ? '/gym' : '/dashboard');
+      navigate('/dashboard');
     } catch (error) {
       message.error(error.response?.data?.message || 'Registration failed');
     }
@@ -30,46 +30,60 @@ const Login = () => {
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#f0f2f5' }}>
-      <Card style={{ width: 400 }}>
+      <Card style={{ width: 450 }}>
         <Tabs defaultActiveKey="login">
           <Tabs.TabPane tab="Login" key="login">
-            <Form onFinish={onLogin}>
+            <Form onFinish={onLogin} layout="vertical">
               <Form.Item name="email" rules={[{ required: true, type: 'email' }]}>
-                <Input prefix={<UserOutlined />} placeholder="Email" />
+                <Input prefix={<UserOutlined />} placeholder="Email" size="large" />
               </Form.Item>
               <Form.Item name="password" rules={[{ required: true }]}>
-                <Input.Password prefix={<LockOutlined />} placeholder="Password" />
+                <Input.Password prefix={<LockOutlined />} placeholder="Password" size="large" />
               </Form.Item>
               <Form.Item>
-                <Button type="primary" htmlType="submit" block>
+                <Button type="primary" htmlType="submit" block size="large">
                   Login
                 </Button>
               </Form.Item>
             </Form>
           </Tabs.TabPane>
-          <Tabs.TabPane tab="Register" key="register">
-            <Form onFinish={onRegister}>
+          
+          <Tabs.TabPane tab="Member Register" key="member">
+            <Form onFinish={onMemberRegister} layout="vertical">
               <Form.Item name="name" rules={[{ required: true }]}>
-                <Input placeholder="Full Name" />
+                <Input prefix={<TeamOutlined />} placeholder="Full Name" size="large" />
               </Form.Item>
               <Form.Item name="email" rules={[{ required: true, type: 'email' }]}>
-                <Input placeholder="Email" />
+                <Input prefix={<UserOutlined />} placeholder="Email" size="large" />
               </Form.Item>
               <Form.Item name="password" rules={[{ required: true, min: 6 }]}>
-                <Input.Password placeholder="Password" />
-              </Form.Item>
-              <Form.Item name="role" rules={[{ required: true }]}>
-                <select style={{ width: '100%', padding: '8px' }}>
-                  <option value="member">Member</option>
-                  <option value="gym_owner">Gym Owner</option>
-                </select>
+                <Input.Password prefix={<LockOutlined />} placeholder="Password (min 6 chars)" size="large" />
               </Form.Item>
               <Form.Item>
-                <Button type="primary" htmlType="submit" block>
-                  Register
+                <Button type="primary" htmlType="submit" block size="large">
+                  Register as Member
                 </Button>
               </Form.Item>
             </Form>
+          </Tabs.TabPane>
+          
+          <Tabs.TabPane tab="Gym Owner" key="gym_owner">
+            <div style={{ textAlign: 'center', padding: '20px 0' }}>
+              <ShopOutlined style={{ fontSize: '48px', color: '#1890ff', marginBottom: '16px' }} />
+              <h3>Start Your Gym Business</h3>
+              <p style={{ color: '#666', marginBottom: '24px' }}>
+                Register your gym and manage members, plans, and payments all in one place.
+              </p>
+              <Button 
+                type="primary" 
+                size="large" 
+                block
+                onClick={() => navigate('/gym-owner-register')}
+                icon={<ShopOutlined />}
+              >
+                Register Your Gym
+              </Button>
+            </div>
           </Tabs.TabPane>
         </Tabs>
       </Card>

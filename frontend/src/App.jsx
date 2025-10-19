@@ -7,13 +7,17 @@ import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminGyms from './pages/AdminGyms';
 import AdminUsers from './pages/AdminUsers';
+import AdminSubscriptions from './pages/AdminSubscriptions';
+import SubscriptionRequired from './pages/SubscriptionRequired';
 import GymDashboard from './pages/GymDashboard';
 import GymSetup from './pages/GymSetup';
+import GymOwnerRegister from './pages/GymOwnerRegister';
 import PlanManagement from './pages/PlanManagement';
 import MemberManagement from './pages/MemberManagement';
 import Attendance from './pages/Attendance';
 import MemberAttendance from './pages/MemberAttendance';
 import GymQR from './pages/GymQR';
+import GymSubscriptions from './pages/GymSubscriptions';
 import MemberDashboard from './pages/MemberDashboard';
 import MemberProfile from './pages/MemberProfile';
 import Support from './pages/Support';
@@ -87,6 +91,11 @@ const AppRoutes = () => {
           <GymQR />
         </ProtectedRoute>
       } />
+      <Route path="/gym/subscriptions" element={
+        <ProtectedRoute allowedRoles={['gym_owner']}>
+          <GymSubscriptions />
+        </ProtectedRoute>
+      } />
       <Route path="/dashboard" element={
         <ProtectedRoute allowedRoles={['member']}>
           <MemberDashboard />
@@ -105,6 +114,13 @@ const AppRoutes = () => {
       <Route path="/support" element={
         <ProtectedRoute>
           <Support />
+        </ProtectedRoute>
+      } />
+      <Route path="/gym-owner-register" element={<GymOwnerRegister />} />
+      <Route path="/subscription-required" element={<SubscriptionRequired />} />
+      <Route path="/admin/subscriptions" element={
+        <ProtectedRoute allowedRoles={['admin']}>
+          <AdminSubscriptions />
         </ProtectedRoute>
       } />
       <Route path="/" element={<Navigate to="/login" />} />

@@ -11,7 +11,13 @@ const gymSchema = new mongoose.Schema({
   gst_number: String,
   pan_number: String,
   business_number: String,
-  plan_type: { type: String, enum: ['basic', 'premium', 'enterprise'], default: 'basic' },
+  plan_type: { 
+    type: String, 
+    default: 'basic',
+    set: function(value) {
+      return value ? value.toString().trim().toLowerCase() : 'basic';
+    }
+  },
   subscription_id: String,
   
   // B. Editable / Dynamic Details
@@ -62,9 +68,12 @@ const gymSchema = new mongoose.Schema({
   
   // System / Internal Fields
   owner_user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  verified: { type: Boolean, default: false },
+
   status: { type: String, enum: ['pending', 'approved', 'rejected', 'suspended', 'deleted'], default: 'pending' },
-  subscription_status: { type: String, enum: ['active', 'inactive', 'cancelled', 'expired'], default: 'active' },
+  subscription_status: { type: String, enum: ['active', 'inactive', 'cancelled', 'expired'], default: 'inactive' },
+  subscription_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Subscription' },
+  subscription_plan: { type: mongoose.Schema.Types.ObjectId, ref: 'SubscriptionPlan' },
+  subscription_end_date: Date,
   last_login: Date,
   payoutAccountId: String,
   commissionRate: { type: Number, default: 0.05 },
@@ -81,7 +90,15 @@ const gymSchema = new mongoose.Schema({
 // Pre-save middleware to generate gym_id
 gymSchema.pre('save', function(next) {
   if (!this.gym_id) {
-    this.gym_id = 'GYM_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9).toUpperCase();
+    this.gym_id = 'GYM_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9).toUpperCase();
+  }
+  next();
+});
+
+// Also handle pre-validate to ensure gym_id is set before validation
+gymSchema.pre('validate', function(next) {
+  if (!this.gym_id) {
+    this.gym_id = 'GYM_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9).toUpperCase();
   }
   next();
 });

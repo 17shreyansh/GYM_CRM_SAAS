@@ -364,19 +364,26 @@ const MemberManagement = () => {
           </div>
         }
         extra={
-          <Space>
+          <Space wrap style={{ width: '100%', justifyContent: 'flex-end' }}>
             <Input
               placeholder="Search by name, email or ID"
               prefix={<SearchOutlined />}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              style={{ width: 250, borderRadius: '8px' }}
+              style={{ 
+                width: window.innerWidth <= 768 ? '100%' : 250, 
+                borderRadius: '8px',
+                marginBottom: window.innerWidth <= 768 ? '8px' : 0
+              }}
             />
             <Button 
               type="primary" 
               icon={<PlusOutlined />} 
               onClick={() => setModalVisible(true)}
-              style={{ borderRadius: '8px' }}
+              style={{ 
+                borderRadius: '8px',
+                width: window.innerWidth <= 768 ? '100%' : 'auto'
+              }}
             >
               Add Member
             </Button>
@@ -441,7 +448,8 @@ const MemberManagement = () => {
           form.resetFields();
         }}
         footer={null}
-        width={600}
+        width={window.innerWidth <= 768 ? '95%' : 600}
+        style={{ top: window.innerWidth <= 768 ? 20 : undefined }}
       >
         <Form form={form} onFinish={handleAddMember} layout="vertical" style={{ marginTop: '24px' }}>
           <Row gutter={16}>
@@ -508,7 +516,7 @@ const MemberManagement = () => {
           </Row>
           
           <Row gutter={16}>
-            <Col span={12}>
+            <Col xs={24} sm={12}>
               <Form.Item 
                 name="joinMethod" 
                 label="Join Method" 
@@ -520,7 +528,7 @@ const MemberManagement = () => {
                 </Select>
               </Form.Item>
             </Col>
-            <Col span={12}>
+            <Col xs={24} sm={12}>
               <Form.Item 
                 name="paymentStatus" 
                 label="Payment Status" 
@@ -535,7 +543,13 @@ const MemberManagement = () => {
           </Row>
           
           <Form.Item style={{ marginBottom: 0, marginTop: '32px' }}>
-            <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
+            <Space 
+              style={{ 
+                width: '100%', 
+                justifyContent: window.innerWidth <= 768 ? 'center' : 'flex-end',
+                flexDirection: window.innerWidth <= 768 ? 'column' : 'row'
+              }}
+            >
               <Button 
                 onClick={() => {
                   setModalVisible(false);

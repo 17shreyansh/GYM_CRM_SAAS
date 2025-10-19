@@ -60,6 +60,7 @@ const Layout = ({ children }) => {
         { key: '/admin', icon: <DashboardOutlined />, label: 'Dashboard' },
         { key: '/admin/gyms', icon: <TeamOutlined />, label: 'Gyms' },
         { key: '/admin/users', icon: <UserOutlined />, label: 'Users' },
+        { key: '/admin/subscriptions', icon: <FileTextOutlined />, label: 'Subscription Plans' },
         { key: '/support', icon: <CustomerServiceOutlined />, label: 'Support' },
       ];
     }
@@ -99,7 +100,12 @@ const Layout = ({ children }) => {
 
   const siderStyle = {
     background: 'linear-gradient(180deg, #1e293b 0%, #334155 100%)',
-    borderRight: '1px solid #e2e8f0'
+    borderRight: '1px solid #e2e8f0',
+    position: 'fixed',
+    height: '100vh',
+    left: 0,
+    top: 0,
+    zIndex: 1001
   };
 
   const headerStyle = {
@@ -117,7 +123,7 @@ const Layout = ({ children }) => {
   };
 
   return (
-    <AntLayout style={{ minHeight: '100vh' }}>
+    <AntLayout style={{ minHeight: '100vh', marginLeft: !isMobile && !collapsed ? 280 : 0 }}>
       {/* Mobile Overlay */}
       {isMobile && !collapsed && (
         <div 
@@ -212,13 +218,40 @@ const Layout = ({ children }) => {
           mode="inline"
           selectedKeys={[location.pathname]}
           items={getMenuItems()}
-          onClick={({ key }) => navigate(key)}
+          onClick={({ key }) => {
+            navigate(key);
+            if (isMobile) {
+              setCollapsed(true);
+            }
+          }}
           style={{ 
             background: 'transparent',
             border: 'none',
             marginTop: '16px'
           }}
         />
+        
+        {/* Mobile Close Button */}
+        {isMobile && !collapsed && (
+          <div style={{
+            position: 'absolute',
+            top: '16px',
+            right: '16px',
+            zIndex: 1003
+          }}>
+            <Button
+              type="text"
+              icon={<MenuFoldOutlined />}
+              onClick={() => setCollapsed(true)}
+              style={{
+                color: 'white',
+                fontSize: '16px',
+                width: 32,
+                height: 32,
+              }}
+            />
+          </div>
+        )}
       </Sider>
       
       <AntLayout>

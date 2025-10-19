@@ -13,6 +13,7 @@ import userRoutes from './routes/user.js';
 import paymentRoutes from './routes/payment.js';
 import supportRoutes from './routes/support.js';
 import fileRoutes from './routes/fileRoutes.js';
+import subscriptionRoutes from './routes/subscription.js';
  
 dotenv.config();
 
@@ -49,6 +50,7 @@ app.use('/api/user', userRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/files', fileRoutes);
+app.use('/api/subscription', subscriptionRoutes);
 
 // Connect to database and start server
 connectDB().then(() => {

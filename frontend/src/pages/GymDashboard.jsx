@@ -45,58 +45,53 @@ const GymDashboard = () => {
       setGym(response.data.gym);
     } catch (error) {
       console.error('Failed to fetch gym details:', error);
+      // If no gym found, redirect to setup
+      if (error.response?.status === 404) {
+        navigate('/gym/setup');
+      }
     }
   };
 
   const getStatusAlert = () => {
-    if (stats.gym_info?.status === 'pending') {
+    const subscription = stats.subscription || {};
+    const { status, plan_name, days_remaining } = subscription;
+    
+    if (status === 'expired' || plan_name === 'No Plan') {
       return (
         <Alert 
-          message="Gym Registration Pending" 
-          description="Your gym registration is under review. You'll be notified once approved."
+          message="Subscription Required" 
+          description="Please activate a subscription plan to access all gym management features."
+          type="warning" 
+          showIcon 
+          icon={<WarningOutlined />}
+          action={
+            <Button size="small" type="primary" onClick={() => navigate('/gym-owner-register')}>
+              View Plans
+            </Button>
+          }
+        />
+      );
+    }
+    
+    if (days_remaining <= 7 && days_remaining > 0) {
+      return (
+        <Alert 
+          message="Subscription Expiring Soon" 
+          description={`Your ${plan_name} plan expires in ${days_remaining} days.`}
           type="warning" 
           showIcon 
           icon={<ClockCircleOutlined />}
-          style={{ borderRadius: '12px' }}
         />
       );
     }
-    if (stats.gym_info?.status === 'rejected') {
-      return (
-        <Alert 
-          message="Registration Rejected" 
-          description="Your gym registration was rejected. Please contact support for assistance."
-          type="error" 
-          showIcon 
-          icon={<WarningOutlined />}
-          style={{ borderRadius: '12px' }}
-        />
-      );
-    }
-    if (!stats.gym_info?.verified) {
-      return (
-        <Alert 
-          message="Complete Your Profile" 
-          description="Your gym is approved! Complete your profile setup to start accepting members."
-          type="info" 
-          showIcon 
-          action={
-            <Button size="small" type="primary" onClick={() => navigate('/gym/setup')}>
-              Complete Setup
-            </Button>
-          }
-          style={{ borderRadius: '12px' }}
-        />
-      );
-    }
+    
     return (
       <Alert 
-        message="Gym Active & Verified" 
-        description="Your gym is fully operational and ready to accept new members!"
+        message="Subscription Active" 
+        description={`Your ${plan_name} plan is active. ${days_remaining} days remaining.`}
         type="success" 
         showIcon 
         icon={<CheckCircleOutlined />}
-        style={{ borderRadius: '12px' }}
       />
     );
   };
@@ -140,14 +135,14 @@ const GymDashboard = () => {
           )}
           <div className="gym-info">
             <h2>{gym.gym_display_name || gym.gym_name}</h2>
-            <p>{gym.location?.city}, {gym.location?.state} • {gym.plan_type?.toUpperCase()} Plan</p>
+            <p>{gym.location?.city}, {gym.location?.state} • {(gym.plan_type || 'basic').trim().toUpperCase()} Plan</p>
           </div>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px' }}>
             <div className={`status-badge ${stats.gym_info?.status === 'approved' ? 'success' : 'warning'}`}>
               {stats.gym_info?.status?.toUpperCase()}
             </div>
-            <div className={`status-badge ${stats.gym_info?.verified ? 'success' : 'error'}`}>
-              {stats.gym_info?.verified ? 'VERIFIED' : 'UNVERIFIED'}
+            <div className={`status-badge ${stats.subscription?.status === 'active' ? 'success' : 'warning'}`}>
+              {stats.subscription?.plan_name || 'NO PLAN'}
             </div>
           </div>
         </div>
@@ -183,10 +178,11 @@ const GymDashboard = () => {
           trend={15}
         />
         <StatCard
-          title="Total Trainers"
-          value={stats.recent_activity?.total_trainers || 0}
-          icon={<TrophyOutlined />}
+          title="Days Remaining"
+          value={stats.subscription?.days_remaining || 0}
+          icon={<CalendarOutlined />}
           color="secondary"
+          suffix=" days"
         />
       </div>
 
@@ -224,6 +220,12 @@ const GymDashboard = () => {
             onClick={() => navigate('/gym/qr')}
           />
           <ActionCard
+            title="Subscriptions"
+            description="View subscription history"
+            icon={<CalendarOutlined />}
+            onClick={() => navigate('/gym/subscriptions')}
+          />
+          <ActionCard
             title="Support"
             description="Get help & contact support"
             icon={<SettingOutlined />}
@@ -254,10 +256,16 @@ const GymDashboard = () => {
                     </Tag>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: 'var(--text-secondary)' }}>Verified:</span>
-                    <Tag color={stats.gym_info?.verified ? 'green' : 'red'}>
-                      {stats.gym_info?.verified ? 'YES' : 'NO'}
+                    <span style={{ color: 'var(--text-secondary)' }}>Plan:</span>
+                    <Tag color={stats.subscription?.status === 'active' ? 'green' : 'orange'}>
+                      {stats.subscription?.plan_name || 'NO PLAN'}
                     </Tag>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--text-secondary)' }}>Days Remaining:</span>
+                    <span style={{ fontWeight: '500' }}>
+                      {stats.subscription?.days_remaining > 0 ? `${stats.subscription.days_remaining} days` : 'Expired'}
+                    </span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span style={{ color: 'var(--text-secondary)' }}>Subscription:</span>

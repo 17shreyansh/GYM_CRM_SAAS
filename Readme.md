@@ -1,87 +1,110 @@
-⚙️ FLOW SUMMARY
-🧑‍💼 Admin (Superuser)
+# Gym SaaS Platform
 
-Core powers:
+A scalable multi-tenant gym management system with separate portals for admins, gym owners, and members.
 
-Dashboard:
-Total gyms, total users, revenue (today / month / total), pending gyms, active gyms.
-Charts: revenue trend, new member signups, churn rate.
+## Architecture
 
-Gym Management:
-View all gyms, approve/reject gyms, see owner info, ban gym (suspends API access).
-Deep view → list of members, revenue, transactions, plan breakdown.
+- **Backend**: Express.js with MongoDB
+- **Frontend**: React (Vite) with Ant Design
+- **Authentication**: JWT-based with role-based access control
+- **Payment**: Razorpay integration
+- **Multi-tenant**: Gym-isolated data with admin oversight
 
-User Management:
-View users globally (across all gyms), ban, delete, or assign test gym.
+## Quick Start
 
-Payment Control:
-Handle payments through Razorpay Connect (recommended) — direct payouts to gym owners’ linked accounts.
-Take your platform commission (e.g., 5–10%) automatically.
+### Backend Setup
+```bash
+cd backend
+npm install
+cp .env.example .env
+# Update .env with your MongoDB URI and secrets
+npm run dev
+```
 
-Support Center:
-Ticket system where gyms or members raise support queries (stored in DB, replied by admin).
+### Frontend Setup
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-Reports & Analytics:
-Export CSVs for payments, gym performance, etc.
+## Features Implemented
 
-Later, add: coupons, platform announcements, gym verification (KYC).
+### 🧑💼 Admin Portal
+- Dashboard with key metrics
+- Gym approval/rejection system
+- User management across all gyms
+- Revenue tracking and analytics
 
-🏋️ Gym Owner Portal
+### 🏋️ Gym Owner Portal
+- Gym registration and setup
+- Membership plan management
+- Member management and approval
+- Payment tracking
 
-Purpose: Manage their gym like a mini-business.
+### 🧍♂️ Member Portal
+- Gym discovery and joining
+- Membership management
+- Payment history
+- Profile management
 
-Core features:
+## Database Models
 
-Dashboard: Active members, expiring memberships, monthly revenue, pending cash requests.
+- **User**: Authentication and profile data
+- **Gym**: Gym information and settings
+- **Plan**: Membership plans per gym
+- **Member**: Gym memberships and status
+- **Payment**: Transaction tracking
+- **SupportTicket**: Customer support system
 
-Gym Setup: Logo, address, contact, operating hours, linked bank account (for payouts).
+## Security Features
 
-Plan Management: CRUD for membership plans (price, duration, description).
-Plan visibility → public (available for users to buy).
+- JWT authentication with role-based access
+- Request rate limiting
+- Helmet security headers
+- Multi-tenant data isolation
+- Input validation and sanitization
 
-Member Management:
+## Scalability Features
 
-Add members manually (cash or offline).
+- Tenant-aware architecture
+- Modular route structure
+- Efficient database queries with population
+- Proxy setup for API calls
+- Component-based frontend architecture
 
-Search by Member ID or name.
+## Next Steps
 
-Approve join requests (both online payment and cash).
+1. Install dependencies and start development servers
+2. Set up MongoDB database
+3. Configure Razorpay credentials
+4. Implement remaining dashboard features
+5. Add payment integration
+6. Implement support ticket system
+7. Add file upload for gym logos and user photos
+8. Implement attendance tracking
+9. Add email notifications
+10. Deploy to production
 
-Suspend or delete member.
+## API Endpoints
 
-Attendance: Check-in system (manual now, QR later).
+### Authentication
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/login` - User login
 
-Payments:
+### Admin Routes
+- `GET /api/admin/dashboard` - Dashboard statistics
+- `GET /api/admin/gyms` - List all gyms
+- `PATCH /api/admin/gyms/:id/status` - Update gym status
 
-See all transactions (online via Razorpay, cash recorded manually).
+### Gym Owner Routes
+- `POST /api/gym` - Create gym
+- `GET /api/gym/dashboard` - Gym dashboard
+- `POST /api/gym/plans` - Create membership plan
+- `GET /api/gym/plans` - List gym plans
 
-Add cash payments manually.
-
-Track total revenue, platform fee, net payout.
-
-Support: Contact admin via chat/ticket.
-
-🧍‍♂️ Member (User) Portal
-
-Purpose: Join gyms, manage profile, payments, and memberships.
-
-Core features:
-
-Profile: Upload photo, personal info (name, DOB, contact, health info).
-
-Gym Discovery: See available gyms (approved ones).
-
-Join Flow:
-
-Choose gym → choose plan → pay (via Razorpay) → instant access.
-
-Or choose “Pay in Cash” → sends request to gym owner for approval.
-
-Membership Overview:
-Current gym, plan name, expiry date, renewal button.
-
-Payment History: Razorpay + cash entries visible.
-
-Attendance Log: (later) view daily check-in history.
-
-Support: Raise ticket to gym owner or platform admin.
+### User Routes
+- `GET /api/user/gyms` - List approved gyms
+- `GET /api/user/gyms/:id/plans` - Get gym plans
+- `POST /api/user/join` - Join gym
+- `GET /api/user/memberships` - User memberships
