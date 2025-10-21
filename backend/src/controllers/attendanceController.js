@@ -275,28 +275,46 @@ export const getAttendanceHistory = async (req, res) => {
 // Search members for check-in
 export const searchMembers = async (req, res) => {
   try {
-    const { search } = req.query;
+    const { search, page = 1, limit = 10 } = req.query;
     const gym = await Gym.findOne({ owner_user_id: req.user._id });
     if (!gym) {
       return res.status(404).json({ success: false, message: 'Gym not found' });
     }
 
-    const members = await Member.find({ 
+    let query = { 
       gym: gym._id, 
       status: 'active',
       endDate: { $gte: new Date() }
-    }).populate('user', 'name email phone');
+    };
 
-    let filteredMembers = members;
+    // If search query exists, add search conditions
     if (search) {
-      filteredMembers = members.filter(member => 
-        member.user.name.toLowerCase().includes(search.toLowerCase()) ||
-        member.user.email.toLowerCase().includes(search.toLowerCase()) ||
+      const members = await Member.find(query).populate('user', 'name email phone');
+      const filteredMembers = members.filter(member => 
+        member.user?.name?.toLowerCase().includes(search.toLowerCase()) ||
+        member.user?.email?.toLowerCase().includes(search.toLowerCase()) ||
         member._id.toString().includes(search)
       );
+      return res.json({ success: true, members: filteredMembers, total: filteredMembers.length });
     }
 
-    res.json({ success: true, members: filteredMembers });
+    // If no search, return paginated results
+    const skip = (page - 1) * limit;
+    const members = await Member.find(query)
+      .populate('user', 'name email phone')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    const total = await Member.countDocuments(query);
+
+    res.json({ 
+      success: true, 
+      members, 
+      total,
+      page: parseInt(page),
+      totalPages: Math.ceil(total / limit)
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

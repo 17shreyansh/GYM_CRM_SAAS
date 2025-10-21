@@ -94,6 +94,13 @@ const AppRoutes = () => {
           </GymProtectedRoute>
         </ProtectedRoute>
       } />
+      <Route path="/gym/members/:memberId" element={
+        <ProtectedRoute allowedRoles={['gym_owner']}>
+          <GymProtectedRoute>
+            <MemberProfile />
+          </GymProtectedRoute>
+        </ProtectedRoute>
+      } />
       <Route path="/gym/attendance" element={
         <ProtectedRoute allowedRoles={['gym_owner']}>
           <GymProtectedRoute>

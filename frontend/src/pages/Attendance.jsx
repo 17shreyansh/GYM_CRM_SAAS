@@ -20,24 +20,42 @@ const { Title, Text } = Typography;
 const Attendance = () => {
   const [searchText, setSearchText] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [allMembers, setAllMembers] = useState([]);
   const [todayAttendance, setTodayAttendance] = useState([]);
   const [historyAttendance, setHistoryAttendance] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [membersLoading, setMembersLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('attendance');
   const [searchDate, setSearchDate] = useState('');
   const [searchMember, setSearchMember] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalMembers, setTotalMembers] = useState(0);
 
   useEffect(() => {
     fetchTodayAttendance();
+    if (activeTab === 'manual') {
+      fetchAllMembers();
+    }
   }, []);
+
+  useEffect(() => {
+    if (activeTab === 'manual' && !searchText) {
+      fetchAllMembers();
+    }
+  }, [activeTab, currentPage]);
 
   useEffect(() => {
     if (searchText.length >= 2) {
       searchMembers();
     } else {
       setSearchResults([]);
+      if (activeTab === 'manual') {
+        setCurrentPage(1);
+        fetchAllMembers();
+      }
     }
   }, [searchText]);
 
@@ -63,6 +81,20 @@ const Attendance = () => {
     setSearchLoading(false);
   };
 
+  const fetchAllMembers = async (page = 1) => {
+    setMembersLoading(true);
+    try {
+      const response = await api.get(`/gym/members/search?page=${page}&limit=10`);
+      setAllMembers(response.data.members || []);
+      setTotalPages(response.data.totalPages || 1);
+      setTotalMembers(response.data.total || 0);
+      setCurrentPage(page);
+    } catch (error) {
+      console.error('Failed to fetch members');
+    }
+    setMembersLoading(false);
+  };
+
   const handleCheckIn = async (memberId) => {
     try {
       const response = await api.post('/gym/attendance/checkin', { memberId });
@@ -70,6 +102,9 @@ const Attendance = () => {
       setSearchText('');
       setSearchResults([]);
       fetchTodayAttendance();
+      if (activeTab === 'manual' && !searchText) {
+        fetchAllMembers(currentPage);
+      }
     } catch (error) {
       message.error(error.response?.data?.message || 'Check-in failed');
     }
@@ -233,7 +268,7 @@ const Attendance = () => {
                         avatar={<Avatar icon={<UserOutlined />} />}
                         title={
                           <Space>
-                            <span>{attendance.member.user.name}</span>
+                            <span>{attendance.member.user?.name || attendance.member.offlineDetails?.name || 'Unknown Member'}</span>
                             {!attendance.checkOutTime && <Tag color="green">In Gym</Tag>}
                           </Space>
                         }
@@ -281,7 +316,7 @@ const Attendance = () => {
                   style={{ marginBottom: 16 }}
                 />
                 
-                {searchLoading && (
+                {(searchLoading || membersLoading) && (
                   <div style={{ textAlign: 'center', padding: 20 }}>
                     <Spin />
                   </div>
@@ -314,10 +349,10 @@ const Attendance = () => {
                         >
                           <List.Item.Meta
                             avatar={<Avatar icon={<UserOutlined />} />}
-                            title={member.user.name}
+                            title={member.user?.name || member.offlineDetails?.name}
                             description={
                               <div>
-                                <div>{member.user.email}</div>
+                                <div>{member.user?.email || member.offlineDetails?.email || 'No email'}</div>
                                 <Text type="secondary">ID: {member._id.slice(-6)}</Text>
                                 {isCheckedIn && <Tag color="green" style={{ marginLeft: 8 }}>Currently In Gym</Tag>}
                                 {hasCompletedToday && <Tag color="blue" style={{ marginLeft: 8 }}>Completed Today</Tag>}
@@ -330,12 +365,72 @@ const Attendance = () => {
                   />
                 )}
                 
-                {searchText.length < 2 && (
-                  <div style={{ textAlign: 'center', padding: 40 }}>
-                    <UserOutlined style={{ fontSize: 48, color: '#d9d9d9' }} />
-                    <div style={{ marginTop: 16, color: '#999' }}>
-                      Type at least 2 characters to search members for manual check-in
+                {searchText.length < 2 && !membersLoading && (
+                  <div>
+                    <div style={{ marginBottom: 16, color: '#666', fontSize: '14px' }}>
+                      Showing {allMembers.length} of {totalMembers} active members
                     </div>
+                    <List
+                      dataSource={allMembers}
+                      locale={{ emptyText: 'No active members found' }}
+                      renderItem={(member) => {
+                        const isCheckedIn = todayAttendance.some(
+                          a => a.member._id === member._id && !a.checkOutTime
+                        );
+                        const hasCompletedToday = todayAttendance.some(
+                          a => a.member._id === member._id && a.checkOutTime
+                        );
+                        
+                        return (
+                          <List.Item
+                            actions={[
+                              <Button
+                                type="primary"
+                                icon={<LoginOutlined />}
+                                onClick={() => handleCheckIn(member._id)}
+                                disabled={isCheckedIn || hasCompletedToday}
+                              >
+                                {isCheckedIn ? 'Already In' : hasCompletedToday ? 'Completed' : 'Manual Check In'}
+                              </Button>
+                            ]}
+                          >
+                            <List.Item.Meta
+                              avatar={<Avatar icon={<UserOutlined />} />}
+                              title={member.user?.name || member.offlineDetails?.name}
+                              description={
+                                <div>
+                                  <div>{member.user?.email || member.offlineDetails?.email || 'No email'}</div>
+                                  <Text type="secondary">ID: {member._id.slice(-6)}</Text>
+                                  {member.isOfflineMember && <Tag color="orange" size="small" style={{ marginLeft: 8 }}>OFFLINE</Tag>}
+                                  {isCheckedIn && <Tag color="green" style={{ marginLeft: 8 }}>Currently In Gym</Tag>}
+                                  {hasCompletedToday && <Tag color="blue" style={{ marginLeft: 8 }}>Completed Today</Tag>}
+                                </div>
+                              }
+                            />
+                          </List.Item>
+                        );
+                      }}
+                    />
+                    
+                    {totalPages > 1 && (
+                      <div style={{ textAlign: 'center', marginTop: 16 }}>
+                        <Space>
+                          <Button 
+                            disabled={currentPage === 1}
+                            onClick={() => fetchAllMembers(currentPage - 1)}
+                          >
+                            Previous
+                          </Button>
+                          <span>Page {currentPage} of {totalPages}</span>
+                          <Button 
+                            disabled={currentPage === totalPages}
+                            onClick={() => fetchAllMembers(currentPage + 1)}
+                          >
+                            Next
+                          </Button>
+                        </Space>
+                      </div>
+                    )}
                   </div>
                 )}
               </Card>
@@ -390,7 +485,7 @@ const Attendance = () => {
                     avatar={<Avatar icon={<UserOutlined />} />}
                     title={
                       <Space>
-                        <span>{attendance.member.user.name}</span>
+                        <span>{attendance.member.user?.name || attendance.member.offlineDetails?.name || 'Unknown Member'}</span>
                         <Tag color={attendance.checkInMethod === 'qr' ? 'purple' : 'orange'}>
                           {attendance.checkInMethod === 'qr' ? 'QR' : 'Manual'}
                         </Tag>
@@ -413,7 +508,7 @@ const Attendance = () => {
                             </>
                           )}
                         </div>
-                        <Text type="secondary">{attendance.member.user.email}</Text>
+                        <Text type="secondary">{attendance.member.user?.email || attendance.member.offlineDetails?.email || 'No email'}</Text>
                       </div>
                     }
                   />

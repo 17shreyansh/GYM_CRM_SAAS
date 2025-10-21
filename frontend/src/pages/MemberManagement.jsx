@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, Table, Button, Modal, Form, Select, Input, Space, Tag, message, Tabs, Row, Col, Avatar, Tooltip, Empty } from 'antd';
 import { 
   PlusOutlined, 
@@ -15,11 +16,14 @@ import {
   PhoneOutlined
 } from '@ant-design/icons';
 import api from '../utils/api';
+import AddMemberModal from '../components/AddMemberModal';
+import PaymentStatusModal from '../components/PaymentStatusModal';
 
 const { TabPane } = Tabs;
 const { Option } = Select;
 
 const MemberManagement = () => {
+  const navigate = useNavigate();
   const [members, setMembers] = useState([]);
   const [users, setUsers] = useState([]);
   const [plans, setPlans] = useState([]);
@@ -27,6 +31,8 @@ const MemberManagement = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [activeTab, setActiveTab] = useState('all');
+  const [paymentModalVisible, setPaymentModalVisible] = useState(false);
+  const [selectedMember, setSelectedMember] = useState(null);
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -68,16 +74,24 @@ const MemberManagement = () => {
     }
   };
 
-  const handleAddMember = async (values) => {
-    try {
-      await api.post('/gym/members', values);
-      message.success('Member added successfully');
-      fetchMembers();
-      setModalVisible(false);
-      form.resetFields();
-    } catch (error) {
-      message.error('Failed to add member');
-    }
+  const handleAddMemberSuccess = () => {
+    fetchMembers();
+    setModalVisible(false);
+  };
+
+  const handlePaymentUpdate = (member) => {
+    setSelectedMember(member);
+    setPaymentModalVisible(true);
+  };
+
+  const handlePaymentUpdateSuccess = () => {
+    fetchMembers();
+    setPaymentModalVisible(false);
+    setSelectedMember(null);
+  };
+
+  const handleViewProfile = (member) => {
+    navigate(`/gym/members/${member._id}`);
   };
 
   const handleStatusUpdate = async (memberId, status) => {
@@ -128,40 +142,77 @@ const MemberManagement = () => {
     {
       title: 'Member Info',
       key: 'memberInfo',
-      render: (_, record) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <Avatar size={40} icon={<UserOutlined />} style={{ background: 'var(--primary-color)' }} />
-          <div>
-            <div style={{ fontWeight: 600, fontSize: '16px', color: 'var(--text-primary)', marginBottom: '2px' }}>
-              {record.user.name}
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--text-secondary)' }}>
-              <MailOutlined />
-              <span>{record.user.email}</span>
-            </div>
-            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-              ID: {record._id.slice(-6)}
+      render: (_, record) => {
+        const isOffline = record.isOfflineMember;
+        const memberData = isOffline ? record.offlineDetails : record.user;
+        
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <Avatar 
+              size={40} 
+              icon={<UserOutlined />} 
+              style={{ 
+                background: isOffline ? 'var(--warning-color)' : 'var(--primary-color)' 
+              }} 
+            />
+            <div>
+              <div 
+                style={{ 
+                  fontWeight: 600, 
+                  fontSize: '16px', 
+                  color: 'var(--primary-color)', 
+                  marginBottom: '2px',
+                  cursor: 'pointer'
+                }}
+                onClick={() => handleViewProfile(record)}
+              >
+                {memberData?.name}
+                {isOffline && <Tag size="small" color="orange" style={{ marginLeft: '8px' }}>OFFLINE</Tag>}
+              </div>
+              {memberData?.email && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--text-secondary)' }}>
+                  <MailOutlined />
+                  <span>{memberData.email}</span>
+                </div>
+              )}
+              {memberData?.phone && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--text-secondary)' }}>
+                  <PhoneOutlined />
+                  <span>{memberData.phone}</span>
+                </div>
+              )}
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                ID: {record._id.slice(-6)}
+              </div>
             </div>
           </div>
-        </div>
-      )
+        );
+      }
     },
     {
       title: 'Plan Details',
       key: 'plan',
-      render: (_, record) => (
-        <div>
-          <div style={{ fontWeight: 600, marginBottom: '4px' }}>{record.plan.name}</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--text-secondary)' }}>
-            <DollarOutlined style={{ color: 'var(--success-color)' }} />
-            <span>₹{record.plan.price.toLocaleString()}</span>
+      render: (_, record) => {
+        const isCustomPlan = record.customPlan?.isCustom;
+        const planData = isCustomPlan ? record.customPlan : record.plan;
+        
+        return (
+          <div>
+            <div style={{ fontWeight: 600, marginBottom: '4px' }}>
+              {planData?.name}
+              {isCustomPlan && <Tag size="small" color="blue" style={{ marginLeft: '8px' }}>CUSTOM</Tag>}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--text-secondary)' }}>
+              <DollarOutlined style={{ color: 'var(--success-color)' }} />
+              <span>₹{planData?.price?.toLocaleString()}</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--text-secondary)' }}>
+              <CalendarOutlined style={{ color: 'var(--primary-color)' }} />
+              <span>{planData?.duration} days</span>
+            </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--text-secondary)' }}>
-            <CalendarOutlined style={{ color: 'var(--primary-color)' }} />
-            <span>{record.plan.duration} days</span>
-          </div>
-        </div>
-      )
+        );
+      }
     },
     {
       title: 'Join Method',
@@ -174,6 +225,33 @@ const MemberManagement = () => {
         >
           {method.toUpperCase()}
         </Tag>
+      )
+    },
+    {
+      title: 'Payment Status',
+      dataIndex: 'paymentStatus',
+      key: 'paymentStatus',
+      render: (status, record) => (
+        <div>
+          <Tag 
+            color={status === 'paid' ? 'green' : 'red'}
+            style={{ borderRadius: '20px', padding: '4px 12px', marginBottom: '4px' }}
+          >
+            {status.toUpperCase()}
+          </Tag>
+          {status === 'unpaid' && (
+            <div>
+              <Button 
+                size="small" 
+                type="link" 
+                onClick={() => handlePaymentUpdate(record)}
+                style={{ padding: 0, height: 'auto', fontSize: '12px' }}
+              >
+                Update Payment
+              </Button>
+            </div>
+          )}
+        </div>
       )
     },
     {
@@ -288,6 +366,16 @@ const MemberManagement = () => {
               </Button>
             </Tooltip>
           )}
+          <Tooltip title="View Profile">
+            <Button 
+              size="small" 
+              icon={<UserOutlined />}
+              onClick={() => handleViewProfile(record)}
+              style={{ borderRadius: '6px' }}
+            >
+              Profile
+            </Button>
+          </Tooltip>
           <Tooltip title="Delete Member">
             <Button 
               size="small" 
@@ -435,147 +523,21 @@ const MemberManagement = () => {
       </Card>
 
       {/* Add Member Modal */}
-      <Modal
-        title={
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <UserOutlined style={{ color: 'var(--primary-color)' }} />
-            <span>Add New Member</span>
-          </div>
-        }
-        open={modalVisible}
-        onCancel={() => {
-          setModalVisible(false);
-          form.resetFields();
-        }}
-        footer={null}
-        width={window.innerWidth <= 768 ? '95%' : 600}
-        style={{ top: window.innerWidth <= 768 ? 20 : undefined }}
-      >
-        <Form form={form} onFinish={handleAddMember} layout="vertical" style={{ marginTop: '24px' }}>
-          <Row gutter={16}>
-            <Col span={24}>
-              <Form.Item 
-                name="userId" 
-                label="Select User" 
-                rules={[{ required: true, message: 'Please select a user' }]}
-              >
-                <Select 
-                  placeholder={users.length === 0 ? "No users available" : "Select user to add as member"}
-                  disabled={users.length === 0}
-                  size="large"
-                  showSearch
-                  filterOption={(input, option) =>
-                    option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }
-                >
-                  {users.map(user => (
-                    <Option key={user._id} value={user._id}>
-                      {user.name} - {user.email}
-                    </Option>
-                  ))}
-                </Select>
-                {users.length === 0 && (
-                  <div style={{ color: 'var(--error-color)', fontSize: '12px', marginTop: '4px' }}>
-                    No users found. Users need to register first.
-                  </div>
-                )}
-              </Form.Item>
-            </Col>
-          </Row>
-          
-          <Row gutter={16}>
-            <Col span={24}>
-              <Form.Item 
-                name="planId" 
-                label="Select Plan" 
-                rules={[{ required: true, message: 'Please select a plan' }]}
-              >
-                <Select 
-                  placeholder={plans.length === 0 ? "No active plans available" : "Select membership plan"}
-                  disabled={plans.length === 0}
-                  size="large"
-                >
-                  {plans.map(plan => (
-                    <Option key={plan._id} value={plan._id}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span>{plan.name}</span>
-                        <span style={{ color: 'var(--success-color)', fontWeight: '600' }}>
-                          ₹{plan.price.toLocaleString()} ({plan.duration} days)
-                        </span>
-                      </div>
-                    </Option>
-                  ))}
-                </Select>
-                {plans.length === 0 && (
-                  <div style={{ color: 'var(--error-color)', fontSize: '12px', marginTop: '4px' }}>
-                    No active plans found. Create plans first in Plan Management.
-                  </div>
-                )}
-              </Form.Item>
-            </Col>
-          </Row>
-          
-          <Row gutter={16}>
-            <Col xs={24} sm={12}>
-              <Form.Item 
-                name="joinMethod" 
-                label="Join Method" 
-                rules={[{ required: true, message: 'Please select join method' }]}
-              >
-                <Select placeholder="Select join method" size="large">
-                  <Option value="cash">Cash Payment</Option>
-                  <Option value="online">Online Payment</Option>
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12}>
-              <Form.Item 
-                name="paymentStatus" 
-                label="Payment Status" 
-                rules={[{ required: true, message: 'Please select payment status' }]}
-              >
-                <Select placeholder="Select payment status" size="large">
-                  <Option value="paid">Paid</Option>
-                  <Option value="unpaid">Unpaid</Option>
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-          
-          <Form.Item style={{ marginBottom: 0, marginTop: '32px' }}>
-            <Space 
-              style={{ 
-                width: '100%', 
-                justifyContent: window.innerWidth <= 768 ? 'center' : 'flex-end',
-                flexDirection: window.innerWidth <= 768 ? 'column' : 'row'
-              }}
-            >
-              <Button 
-                onClick={() => {
-                  setModalVisible(false);
-                  form.resetFields();
-                }}
-                size="large"
-              >
-                Cancel
-              </Button>
-              <Button 
-                type="primary" 
-                htmlType="submit"
-                disabled={users.length === 0 || plans.length === 0}
-                size="large"
-              >
-                Add Member
-              </Button>
-            </Space>
-            {(users.length === 0 || plans.length === 0) && (
-              <div style={{ color: 'var(--error-color)', fontSize: '12px', marginTop: '8px', textAlign: 'center' }}>
-                Cannot add members without users and active plans.
-              </div>
-            )}
-          </Form.Item>
-        </Form>
-      </Modal>
+      <AddMemberModal
+        visible={modalVisible}
+        onCancel={() => setModalVisible(false)}
+        onSuccess={handleAddMemberSuccess}
+        users={users}
+        plans={plans}
+      />
+
+      {/* Payment Status Modal */}
+      <PaymentStatusModal
+        visible={paymentModalVisible}
+        onCancel={() => setPaymentModalVisible(false)}
+        onSuccess={handlePaymentUpdateSuccess}
+        member={selectedMember}
+      />
     </div>
   );
 };

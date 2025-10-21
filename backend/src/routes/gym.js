@@ -19,7 +19,10 @@ import {
   addMember,
   updateMemberStatus,
   deleteMember,
-  getAvailableUsers
+  getAvailableUsers,
+  updatePaymentStatus,
+  getMemberProfile,
+  sendMemberNotification
 } from '../controllers/memberController.js';
 import {
   checkIn,
@@ -54,7 +57,10 @@ router.delete('/plans/:id', restrictTo('gym_owner'), checkSubscription, deletePl
 // Member management routes
 router.get('/members', restrictTo('gym_owner'), checkSubscription, getGymMembers);
 router.post('/members', restrictTo('gym_owner'), checkSubscription, addMember);
+router.get('/members/:id/profile', restrictTo('gym_owner'), checkSubscription, getMemberProfile);
 router.patch('/members/:id/status', restrictTo('gym_owner'), checkSubscription, updateMemberStatus);
+router.patch('/members/:id/payment', restrictTo('gym_owner'), checkSubscription, updatePaymentStatus);
+router.post('/members/:id/notify', restrictTo('gym_owner'), checkSubscription, sendMemberNotification);
 router.delete('/members/:id', restrictTo('gym_owner'), checkSubscription, deleteMember);
 router.get('/users', restrictTo('gym_owner'), checkSubscription, getAvailableUsers);
 
