@@ -21,6 +21,9 @@ import GymSubscriptions from './pages/GymSubscriptions';
 import GymSuspended from './pages/GymSuspended';
 import MemberDashboard from './pages/MemberDashboard';
 import MemberProfile from './pages/MemberProfile';
+import GymDiscovery from './pages/GymDiscovery';
+import GymDetail from './pages/GymDetail';
+import PaymentHistory from './pages/PaymentHistory';
 import Support from './pages/Support';
 import './App.css';
 
@@ -106,6 +109,21 @@ const AppRoutes = () => {
       <Route path="/profile" element={
         <ProtectedRoute allowedRoles={['member']}>
           <MemberProfile />
+        </ProtectedRoute>
+      } />
+      <Route path="/gyms" element={
+        <ProtectedRoute allowedRoles={['member']}>
+          <GymDiscovery />
+        </ProtectedRoute>
+      } />
+      <Route path="/gym/:slug" element={
+        <ProtectedRoute allowedRoles={['member']}>
+          <GymDetail />
+        </ProtectedRoute>
+      } />
+      <Route path="/payments" element={
+        <ProtectedRoute allowedRoles={['member']}>
+          <PaymentHistory />
         </ProtectedRoute>
       } />
       <Route path="/attendance" element={

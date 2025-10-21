@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Form, Input, Button, DatePicker, Upload, message, Table } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+import { Card, Form, Input, Button, DatePicker, Upload, message, Table, Row, Col, Avatar, Tag, Tabs } from 'antd';
+import { UploadOutlined, UserOutlined, CreditCardOutlined, HistoryOutlined } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../utils/api';
 import dayjs from 'dayjs';
+
+const { TabPane } = Tabs;
 
 const MemberProfile = () => {
   const { user } = useAuth();
   const [form] = Form.useForm();
   const [payments, setPayments] = useState([]);
+  const [profile, setProfile] = useState({});
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -18,6 +22,7 @@ const MemberProfile = () => {
   const fetchProfile = async () => {
     try {
       const response = await api.get('/user/profile');
+      setProfile(response.data);
       form.setFieldsValue({
         ...response.data,
         dateOfBirth: response.data.dateOfBirth ? dayjs(response.data.dateOfBirth) : null
@@ -43,60 +48,129 @@ const MemberProfile = () => {
         dateOfBirth: values.dateOfBirth?.toISOString()
       });
       message.success('Profile updated successfully');
+      fetchProfile();
     } catch (error) {
       message.error('Failed to update profile');
     }
+  };
+
+  const handlePhotoUpload = async (file) => {
+    const formData = new FormData();
+    formData.append('photo', file);
+    
+    setUploading(true);
+    try {
+      const response = await api.post('/user/upload-photo', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      message.success('Photo uploaded successfully');
+      fetchProfile();
+    } catch (error) {
+      message.error('Failed to upload photo');
+    } finally {
+      setUploading(false);
+    }
+    return false; // Prevent default upload
   };
 
   const paymentColumns = [
     { title: 'Date', dataIndex: 'createdAt', render: (date) => new Date(date).toLocaleDateString() },
     { title: 'Gym', dataIndex: ['gym', 'name'] },
     { title: 'Amount', dataIndex: 'amount', render: (amount) => `₹${amount}` },
-    { title: 'Source', dataIndex: 'source' },
-    { title: 'Status', dataIndex: 'status' }
+    { title: 'Method', dataIndex: 'source', render: (source) => (
+      <Tag color={source === 'razorpay' ? 'blue' : 'green'}>
+        {source === 'razorpay' ? 'Online' : 'Cash'}
+      </Tag>
+    )},
+    { title: 'Status', dataIndex: 'status', render: (status) => (
+      <Tag color={status === 'completed' ? 'green' : status === 'pending' ? 'orange' : 'red'}>
+        {status}
+      </Tag>
+    )}
   ];
 
   return (
     <div>
-      <Card title="Profile" style={{ marginBottom: 24 }}>
-        <Form form={form} onFinish={onFinish} layout="vertical" initialValues={user}>
-          <Form.Item name="name" label="Full Name" rules={[{ required: true }]}>
-            <Input />
-          </Form.Item>
-          
-          <Form.Item name="email" label="Email">
-            <Input disabled />
-          </Form.Item>
-          
-          <Form.Item name="phone" label="Phone">
-            <Input />
-          </Form.Item>
-          
-          <Form.Item name="dateOfBirth" label="Date of Birth">
-            <DatePicker style={{ width: '100%' }} />
-          </Form.Item>
-          
-          <Form.Item name="healthInfo" label="Health Information">
-            <Input.TextArea placeholder="Any health conditions, allergies, etc." />
-          </Form.Item>
-          
-          <Form.Item name="photo" label="Profile Photo">
-            <Upload>
-              <Button icon={<UploadOutlined />}>Upload Photo</Button>
+      <Row gutter={24}>
+        <Col span={8}>
+          <Card title="Profile Picture" style={{ textAlign: 'center', marginBottom: 24 }}>
+            <Avatar 
+              size={120} 
+              src={profile.photo} 
+              icon={<UserOutlined />}
+              style={{ marginBottom: 16 }}
+            />
+            <br />
+            <Upload
+              beforeUpload={handlePhotoUpload}
+              showUploadList={false}
+              accept="image/*"
+            >
+              <Button icon={<UploadOutlined />} loading={uploading}>
+                {uploading ? 'Uploading...' : 'Change Photo'}
+              </Button>
             </Upload>
-          </Form.Item>
-          
-          <Form.Item>
-            <Button type="primary" htmlType="submit">
-              Update Profile
-            </Button>
-          </Form.Item>
-        </Form>
-      </Card>
-
-      <Card title="Payment History">
-        <Table dataSource={payments} columns={paymentColumns} rowKey="_id" />
-      </Card>
+          </Card>
+        </Col>
+        
+        <Col span={16}>
+          <Card title="Personal Information">
+            <Tabs defaultActiveKey="1">
+              <TabPane tab={<span><UserOutlined />Profile</span>} key="1">
+                <Form form={form} onFinish={onFinish} layout="vertical">
+                  <Row gutter={16}>
+                    <Col span={12}>
+                      <Form.Item name="name" label="Full Name" rules={[{ required: true }]}>
+                        <Input />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item name="email" label="Email">
+                        <Input disabled />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                  
+                  <Row gutter={16}>
+                    <Col span={12}>
+                      <Form.Item name="phone" label="Phone Number">
+                        <Input />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item name="dateOfBirth" label="Date of Birth">
+                        <DatePicker style={{ width: '100%' }} />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                  
+                  <Form.Item name="healthInfo" label="Health Information">
+                    <Input.TextArea 
+                      rows={4}
+                      placeholder="Any health conditions, allergies, medical history, etc."
+                    />
+                  </Form.Item>
+                  
+                  <Form.Item>
+                    <Button type="primary" htmlType="submit">
+                      Update Profile
+                    </Button>
+                  </Form.Item>
+                </Form>
+              </TabPane>
+              
+              <TabPane tab={<span><CreditCardOutlined />Payment History</span>} key="2">
+                <Table 
+                  dataSource={payments} 
+                  columns={paymentColumns} 
+                  rowKey="_id"
+                  pagination={{ pageSize: 10 }}
+                />
+              </TabPane>
+            </Tabs>
+          </Card>
+        </Col>
+      </Row>
     </div>
   );
 };

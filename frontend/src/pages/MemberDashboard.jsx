@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Row, Col, Button, Modal, Table, Tag, message } from 'antd';
+import { Card, Row, Col, Button, Modal, Table, Tag, message, Statistic, Space } from 'antd';
+import { PlusOutlined, CalendarOutlined, CreditCardOutlined } from '@ant-design/icons';
 import api from '../utils/api';
 
 const MemberDashboard = () => {
@@ -9,6 +10,7 @@ const MemberDashboard = () => {
   const [plans, setPlans] = useState([]);
   const [gymModal, setGymModal] = useState(false);
   const [planModal, setPlanModal] = useState(false);
+  const [stats, setStats] = useState({ active: 0, expiring: 0 });
 
   useEffect(() => {
     fetchMemberships();
@@ -19,6 +21,18 @@ const MemberDashboard = () => {
     try {
       const response = await api.get('/user/memberships');
       setMemberships(response.data);
+      
+      // Calculate stats
+      const active = response.data.filter(m => m.status === 'active').length;
+      const expiring = response.data.filter(m => {
+        if (!m.endDate) return false;
+        const endDate = new Date(m.endDate);
+        const today = new Date();
+        const diffDays = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
+        return diffDays <= 7 && diffDays > 0;
+      }).length;
+      
+      setStats({ active, expiring });
     } catch (error) {
       console.error('Failed to fetch memberships:', error);
     }
@@ -54,33 +68,81 @@ const MemberDashboard = () => {
     }
   };
 
+  const renewMembership = async (membershipId) => {
+    try {
+      await api.post(`/user/renew/${membershipId}`);
+      message.success('Membership renewed successfully');
+      fetchMemberships();
+    } catch (error) {
+      message.error('Failed to renew membership');
+    }
+  };
+
   const membershipColumns = [
     { title: 'Gym', dataIndex: ['gym', 'name'], key: 'gym' },
     { title: 'Plan', dataIndex: ['plan', 'name'], key: 'plan' },
     { title: 'Price', dataIndex: ['plan', 'price'], key: 'price', render: (price) => `₹${price}` },
     { title: 'Status', dataIndex: 'status', key: 'status',
-      render: (status) => <Tag color={status === 'active' ? 'green' : 'orange'}>{status}</Tag>
+      render: (status) => <Tag color={status === 'active' ? 'green' : status === 'pending' ? 'orange' : 'red'}>{status}</Tag>
     },
     { title: 'Join Method', dataIndex: 'joinMethod', key: 'joinMethod' },
-    { title: 'Start Date', dataIndex: 'startDate', key: 'startDate',
-      render: (date) => date ? new Date(date).toLocaleDateString() : 'N/A'
+    { title: 'Expiry', dataIndex: 'endDate', key: 'endDate',
+      render: (date) => {
+        if (!date) return 'N/A';
+        const endDate = new Date(date);
+        const today = new Date();
+        const diffDays = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
+        return (
+          <span style={{ color: diffDays <= 7 ? '#ff4d4f' : 'inherit' }}>
+            {endDate.toLocaleDateString()}
+            {diffDays <= 7 && diffDays > 0 && ` (${diffDays} days left)`}
+          </span>
+        );
+      }
     },
-    { title: 'End Date', dataIndex: 'endDate', key: 'endDate',
-      render: (date) => date ? new Date(date).toLocaleDateString() : 'N/A'
+    { title: 'Actions', key: 'actions',
+      render: (_, record) => (
+        record.status === 'active' && (
+          <Button size="small" onClick={() => renewMembership(record._id)}>
+            Renew
+          </Button>
+        )
+      )
     }
   ];
 
   return (
     <div>
+      {/* Stats Cards */}
+      <Row gutter={16} style={{ marginBottom: 24 }}>
+        <Col span={8}>
+          <Card>
+            <Statistic title="Active Memberships" value={stats.active} prefix={<CalendarOutlined />} />
+          </Card>
+        </Col>
+        <Col span={8}>
+          <Card>
+            <Statistic title="Expiring Soon" value={stats.expiring} prefix={<CalendarOutlined />} valueStyle={{ color: '#ff4d4f' }} />
+          </Card>
+        </Col>
+        <Col span={8}>
+          <Card>
+            <Statistic title="Total Gyms Available" value={gyms.length} prefix={<PlusOutlined />} />
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Memberships Table */}
       <Card title="My Memberships" extra={
-        <Button type="primary" onClick={() => setGymModal(true)}>
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => setGymModal(true)}>
           Join New Gym
         </Button>
       } style={{ marginBottom: 24 }}>
         <Table dataSource={memberships} columns={membershipColumns} rowKey="_id" />
       </Card>
 
-      <Modal title="Available Gyms" open={gymModal} onCancel={() => setGymModal(false)} footer={null} width={800}>
+      {/* Gym Discovery Modal */}
+      <Modal title="Discover Gyms" open={gymModal} onCancel={() => setGymModal(false)} footer={null} width={800}>
         <Row gutter={16}>
           {gyms.map(gym => (
             <Col span={12} key={gym._id} style={{ marginBottom: 16 }}>
@@ -94,23 +156,25 @@ const MemberDashboard = () => {
                   View Plans
                 </Button>}
               >
-                <p>{gym.address}</p>
-                <p>Hours: {gym.operatingHours?.open} - {gym.operatingHours?.close}</p>
+                <p><strong>Address:</strong> {gym.address}</p>
+                <p><strong>Hours:</strong> {gym.operatingHours?.open} - {gym.operatingHours?.close}</p>
+                {gym.phone && <p><strong>Phone:</strong> {gym.phone}</p>}
               </Card>
             </Col>
           ))}
         </Row>
       </Modal>
 
-      <Modal title={`Plans - ${selectedGym?.name}`} open={planModal} onCancel={() => setPlanModal(false)} footer={null}>
+      {/* Plan Selection Modal */}
+      <Modal title={`Choose Plan - ${selectedGym?.name}`} open={planModal} onCancel={() => setPlanModal(false)} footer={null} width={600}>
         <Row gutter={16}>
           {plans.map(plan => (
             <Col span={24} key={plan._id} style={{ marginBottom: 16 }}>
               <Card
                 title={plan.name}
                 extra={
-                  <div>
-                    <Button type="primary" onClick={async () => {
+                  <Space>
+                    <Button type="primary" icon={<CreditCardOutlined />} onClick={async () => {
                       try {
                         const { initiatePayment } = await import('../utils/payment');
                         await initiatePayment(selectedGym._id, plan._id);
@@ -123,15 +187,15 @@ const MemberDashboard = () => {
                     }}>
                       Pay ₹{plan.price}
                     </Button>
-                    <Button style={{ marginLeft: 8 }} onClick={() => joinGym(selectedGym._id, plan._id, 'cash')}>
+                    <Button onClick={() => joinGym(selectedGym._id, plan._id, 'cash')}>
                       Pay in Cash
                     </Button>
-                  </div>
+                  </Space>
                 }
               >
                 <p>{plan.description}</p>
-                <p>Duration: {plan.duration} days</p>
-                <p>Price: ₹{plan.price}</p>
+                <p><strong>Duration:</strong> {plan.duration} days</p>
+                <p><strong>Price:</strong> ₹{plan.price}</p>
               </Card>
             </Col>
           ))}

@@ -12,7 +12,9 @@ import {
   CustomerServiceOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  BellOutlined
+  BellOutlined,
+  ShopOutlined,
+  CreditCardOutlined
 } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -77,7 +79,9 @@ const Layout = ({ children }) => {
     }
     return [
       { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
+      { key: '/gyms', icon: <ShopOutlined />, label: 'Discover Gyms' },
       { key: '/profile', icon: <UserOutlined />, label: 'Profile' },
+      { key: '/payments', icon: <CreditCardOutlined />, label: 'Payment History' },
       { key: '/attendance', icon: <CalendarOutlined />, label: 'My Attendance' },
       { key: '/support', icon: <CustomerServiceOutlined />, label: 'Support' },
     ];
