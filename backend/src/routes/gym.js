@@ -29,6 +29,9 @@ import {
   generateGymQR,
   getAttendanceHistory
 } from '../controllers/attendanceController.js';
+import {
+  createNotification
+} from '../controllers/notificationController.js';
 import { protect, restrictTo } from '../middleware/auth.js';
 import { checkSubscription } from '../middleware/subscription.js';
 
@@ -37,7 +40,7 @@ const router = express.Router();
 // Gym owner routes
 router.use(protect);
 router.post('/', restrictTo('gym_owner'), createGym);
-router.get('/dashboard', restrictTo('gym_owner'), checkSubscription, getGymDashboard);
+router.get('/dashboard', restrictTo('gym_owner'), getGymDashboard);
 router.get('/details', restrictTo('gym_owner'), getGymDetails);
 router.patch('/details/:id', restrictTo('gym_owner'), updateGymDetails);
 router.get('/subscriptions', restrictTo('gym_owner'), getGymSubscriptions);
@@ -62,6 +65,9 @@ router.get('/attendance/today', restrictTo('gym_owner'), checkSubscription, getT
 router.get('/attendance/history', restrictTo('gym_owner'), checkSubscription, getAttendanceHistory);
 router.get('/members/search', restrictTo('gym_owner'), checkSubscription, searchMembers);
 router.get('/attendance/gym-qr', restrictTo('gym_owner'), checkSubscription, generateGymQR);
+
+// Notification routes
+router.post('/notifications', restrictTo('gym_owner'), checkSubscription, createNotification);
 
 // Admin routes
 router.get('/all', restrictTo('admin'), getAllGyms);

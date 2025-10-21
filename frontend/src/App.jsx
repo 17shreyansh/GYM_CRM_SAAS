@@ -25,6 +25,9 @@ import GymDiscovery from './pages/GymDiscovery';
 import GymDetail from './pages/GymDetail';
 import PaymentHistory from './pages/PaymentHistory';
 import Support from './pages/Support';
+import NotificationManagement from './pages/NotificationManagement';
+import Notifications from './pages/Notifications';
+import GymProtectedRoute from './components/GymProtectedRoute';
 import './App.css';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -62,7 +65,9 @@ const AppRoutes = () => {
       } />
       <Route path="/gym" element={
         <ProtectedRoute allowedRoles={['gym_owner']}>
-          <GymDashboard />
+          <GymProtectedRoute>
+            <GymDashboard />
+          </GymProtectedRoute>
         </ProtectedRoute>
       } />
       <Route path="/gym-setup" element={
@@ -77,27 +82,44 @@ const AppRoutes = () => {
       } />
       <Route path="/gym/plans" element={
         <ProtectedRoute allowedRoles={['gym_owner']}>
-          <PlanManagement />
+          <GymProtectedRoute>
+            <PlanManagement />
+          </GymProtectedRoute>
         </ProtectedRoute>
       } />
       <Route path="/gym/members" element={
         <ProtectedRoute allowedRoles={['gym_owner']}>
-          <MemberManagement />
+          <GymProtectedRoute>
+            <MemberManagement />
+          </GymProtectedRoute>
         </ProtectedRoute>
       } />
       <Route path="/gym/attendance" element={
         <ProtectedRoute allowedRoles={['gym_owner']}>
-          <Attendance />
+          <GymProtectedRoute>
+            <Attendance />
+          </GymProtectedRoute>
         </ProtectedRoute>
       } />
       <Route path="/gym/qr" element={
         <ProtectedRoute allowedRoles={['gym_owner']}>
-          <GymQR />
+          <GymProtectedRoute>
+            <GymQR />
+          </GymProtectedRoute>
         </ProtectedRoute>
       } />
       <Route path="/gym/subscriptions" element={
         <ProtectedRoute allowedRoles={['gym_owner']}>
-          <GymSubscriptions />
+          <GymProtectedRoute>
+            <GymSubscriptions />
+          </GymProtectedRoute>
+        </ProtectedRoute>
+      } />
+      <Route path="/gym/notifications" element={
+        <ProtectedRoute allowedRoles={['gym_owner']}>
+          <GymProtectedRoute>
+            <NotificationManagement />
+          </GymProtectedRoute>
         </ProtectedRoute>
       } />
       <Route path="/gym-suspended" element={<GymSuspended />} />
@@ -129,6 +151,11 @@ const AppRoutes = () => {
       <Route path="/attendance" element={
         <ProtectedRoute allowedRoles={['member']}>
           <MemberAttendance />
+        </ProtectedRoute>
+      } />
+      <Route path="/notifications" element={
+        <ProtectedRoute allowedRoles={['member']}>
+          <Notifications />
         </ProtectedRoute>
       } />
       <Route path="/support" element={

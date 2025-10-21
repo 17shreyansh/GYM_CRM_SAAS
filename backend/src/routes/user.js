@@ -7,6 +7,12 @@ import Member from '../models/Member.js';
 import User from '../models/User.js';
 import Payment from '../models/Payment.js';
 import FileService from '../services/FileService.js';
+import {
+  getUserNotifications,
+  markAsRead,
+  markAllAsRead,
+  getUnreadCount
+} from '../controllers/notificationController.js';
 
 const router = express.Router();
 
@@ -182,6 +188,12 @@ router.post('/upload-photo', protect, upload.single('photo'), async (req, res) =
     res.status(500).json({ message: error.message });
   }
 });
+
+// Notification routes
+router.get('/notifications', protect, getUserNotifications);
+router.patch('/notifications/:id/read', protect, markAsRead);
+router.patch('/notifications/read-all', protect, markAllAsRead);
+router.get('/notifications/unread-count', protect, getUnreadCount);
 
 // Renew membership
 router.post('/renew/:membershipId', protect, async (req, res) => {

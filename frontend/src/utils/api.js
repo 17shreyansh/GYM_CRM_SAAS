@@ -17,6 +17,8 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.data?.gym_suspended) {
       window.location.href = '/gym-suspended';
+    } else if (error.response?.data?.subscription_required || error.response?.data?.subscription_expired) {
+      window.location.href = '/subscription-required';
     }
     return Promise.reject(error);
   }

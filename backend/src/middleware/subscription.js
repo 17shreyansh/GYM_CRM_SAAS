@@ -21,11 +21,12 @@ export const checkSubscription = async (req, res, next) => {
     }
 
     // Check if subscription exists and is active
-    if (!gym.subscription_id || gym.subscription_status !== 'active') {
+    if (!gym.subscription_id || gym.subscription_status !== 'active' || gym.plan_type === 'basic') {
       return res.status(403).json({ 
         success: false, 
-        message: 'No active subscription',
-        subscription_required: true 
+        message: 'Active subscription required to access gym features',
+        subscription_required: true,
+        current_plan: gym.plan_type || 'none'
       });
     }
 

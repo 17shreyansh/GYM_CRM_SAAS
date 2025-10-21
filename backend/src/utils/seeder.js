@@ -6,6 +6,7 @@ import Plan from '../models/Plan.js';
 import Member from '../models/Member.js';
 import Trainer from '../models/Trainer.js';
 import Analytics from '../models/Analytics.js';
+import Notification from '../models/Notification.js';
 import { connectDB } from './database.js';
 
 dotenv.config();
@@ -25,6 +26,7 @@ const seedData = async () => {
     await Member.deleteMany({});
     await Trainer.deleteMany({});
     await Analytics.deleteMany({});
+    await Notification.deleteMany({});
 
     // Create admin user (password will be hashed by pre-save middleware)
     const adminUser = await User.create({
@@ -105,8 +107,7 @@ const seedData = async () => {
         instagram: 'https://instagram.com/fitnesshub',
         website: 'https://fitnesshub.com'
       },
-      status: 'approved',
-      verified: true,
+      status: 'active',
       analytics: {
         total_visitors: 1250,
         total_revenue: 125000,
@@ -145,8 +146,7 @@ const seedData = async () => {
         saturday: { open: '06:00', close: '22:00', closed: false },
         sunday: { open: '07:00', close: '21:00', closed: false }
       },
-      status: 'pending',
-      verified: false,
+      status: 'active',
       analytics: {
         total_visitors: 650,
         total_revenue: 65000,
@@ -250,6 +250,37 @@ const seedData = async () => {
         }
       });
     }
+
+    // Create sample notifications
+    await Notification.create([
+      {
+        recipient_id: member1._id,
+        recipient_type: 'member',
+        gym_id: gym1._id,
+        title: 'Welcome to Fitness Hub!',
+        message: 'Welcome to our gym! We are excited to have you as a member. Feel free to explore all our facilities.',
+        type: 'success',
+        category: 'system'
+      },
+      {
+        recipient_id: member1._id,
+        recipient_type: 'member',
+        gym_id: gym1._id,
+        title: 'New Equipment Arrival',
+        message: 'We have added new cardio machines to our gym. Come check them out!',
+        type: 'info',
+        category: 'system'
+      },
+      {
+        recipient_id: member2._id,
+        recipient_type: 'member',
+        gym_id: gym2._id,
+        title: 'Membership Approval Pending',
+        message: 'Your membership request is under review. You will be notified once approved.',
+        type: 'warning',
+        category: 'membership'
+      }
+    ]);
 
     console.log('✅ Database seeded successfully!');
     console.log('\n🔑 Login Credentials:');

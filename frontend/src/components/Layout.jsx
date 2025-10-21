@@ -18,6 +18,7 @@ import {
 } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
+import NotificationBell from './NotificationBell';
 import api from '../utils/api';
 
 const { Header, Sider, Content } = AntLayout;
@@ -73,6 +74,7 @@ const Layout = ({ children }) => {
         { key: '/gym/plans', icon: <FileTextOutlined />, label: 'Plans' },
         { key: '/gym/members', icon: <TeamOutlined />, label: 'Members' },
         { key: '/gym/attendance', icon: <CalendarOutlined />, label: 'Attendance' },
+        { key: '/gym/notifications', icon: <BellOutlined />, label: 'Notifications' },
         { key: '/gym/qr', icon: <QrcodeOutlined />, label: 'QR Code' },
         { key: '/support', icon: <CustomerServiceOutlined />, label: 'Support' },
       ];
@@ -81,6 +83,7 @@ const Layout = ({ children }) => {
       { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
       { key: '/gyms', icon: <ShopOutlined />, label: 'Discover Gyms' },
       { key: '/profile', icon: <UserOutlined />, label: 'Profile' },
+      { key: '/notifications', icon: <BellOutlined />, label: 'Notifications' },
       { key: '/payments', icon: <CreditCardOutlined />, label: 'Payment History' },
       { key: '/attendance', icon: <CalendarOutlined />, label: 'My Attendance' },
       { key: '/support', icon: <CustomerServiceOutlined />, label: 'Support' },
@@ -297,13 +300,7 @@ const Layout = ({ children }) => {
           </div>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <Badge count={0} size="small">
-              <Button 
-                type="text" 
-                icon={<BellOutlined />} 
-                style={{ fontSize: '16px', width: 40, height: 40 }}
-              />
-            </Badge>
+            {user?.role === 'member' && <NotificationBell />}
             
             <Dropdown overlay={userMenu} placement="bottomRight" trigger={['click']}>
               <Button 

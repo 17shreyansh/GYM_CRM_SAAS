@@ -13,7 +13,8 @@ import {
   QrcodeOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
-  WarningOutlined
+  WarningOutlined,
+  NotificationOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
@@ -36,6 +37,10 @@ const GymDashboard = () => {
       setStats(response.data.data || {});
     } catch (error) {
       console.error('Failed to fetch dashboard:', error);
+      // Check if it's a subscription issue
+      if (error.response?.data?.subscription_required || error.response?.data?.subscription_expired) {
+        navigate('/subscription-required');
+      }
     }
   };
 
@@ -226,6 +231,12 @@ const GymDashboard = () => {
             description="View subscription history"
             icon={<CalendarOutlined />}
             onClick={() => navigate('/gym/subscriptions')}
+          />
+          <ActionCard
+            title="Notifications"
+            description="Send updates to members"
+            icon={<NotificationOutlined />}
+            onClick={() => navigate('/gym/notifications')}
           />
           <ActionCard
             title="Support"

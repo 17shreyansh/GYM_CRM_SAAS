@@ -123,13 +123,43 @@ export const getGymDetails = async (req, res) => {
   }
 };
 
-// Get gym dashboard data
+// Get gym dashboard data (basic access without subscription check)
 export const getGymDashboard = async (req, res) => {
   try {
     const gym = await Gym.findOne({ owner_user_id: req.user._id });
     
     if (!gym) {
       return res.status(404).json({ success: false, message: 'Gym not found' });
+    }
+
+    // Check subscription status but don't block access
+    const hasActiveSubscription = gym.subscription_id && gym.subscription_status === 'active' && gym.plan_type !== 'basic';
+    
+    if (!hasActiveSubscription) {
+      // Return limited dashboard data for users without subscription
+      return res.json({
+        success: true,
+        data: {
+          gym_info: {
+            gym_id: gym.gym_id || 'N/A',
+            gym_display_name: gym.gym_display_name || gym.gym_name,
+            status: gym.status,
+            subscription_status: 'inactive'
+          },
+          subscription: {
+            plan_name: 'No Plan',
+            days_remaining: 0,
+            end_date: null,
+            status: 'expired'
+          },
+          analytics: {
+            active_members: 0,
+            total_visitors: 0,
+            total_revenue: 0
+          },
+          subscription_required: true
+        }
+      });
     }
 
     // Get current subscription
