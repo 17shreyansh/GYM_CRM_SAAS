@@ -4,3 +4,215 @@
   margin: 0;
   padding: 0;
 }
+
+/* Staff Management Styles */
+.staff-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.staff-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.staff-avatar {
+  border: 3px solid #f0f0f0;
+  transition: border-color 0.3s ease;
+}
+
+.staff-card:hover .staff-avatar {
+  border-color: #1890ff;
+}
+
+.role-badge {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-dot.active {
+  background-color: #52c41a;
+}
+
+.status-dot.inactive {
+  background-color: #ff4d4f;
+}
+
+.status-dot.on_leave {
+  background-color: #faad14;
+}
+
+.staff-stats-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+}
+
+.staff-stats-card .ant-statistic-title {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.staff-stats-card .ant-statistic-content {
+  color: white;
+}
+
+.quick-action-btn {
+  height: 48px;
+  border-radius: 8px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.quick-action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.filter-section {
+  background: #fafafa;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.staff-table .ant-table-thead > tr > th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #2c3e50;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.staff-table .ant-table-tbody > tr:hover > td {
+  background: #f8f9ff;
+}
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #666;
+}
+
+.specialization-tag {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin: 1px;
+}
+
+.drawer-section {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.drawer-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.drawer-section h4 {
+  margin: 0 0 12px 0;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.info-label {
+  color: #666;
+  font-size: 13px;
+}
+
+.info-value {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.staff-modal .ant-modal-header {
+  border-bottom: 2px solid #f0f0f0;
+  padding: 20px 24px;
+}
+
+.staff-modal .ant-modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.user-search-option {
+  padding: 8px 0;
+}
+
+.user-search-option .ant-avatar {
+  margin-right: 8px;
+}
+
+.user-search-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-search-name {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.user-search-email {
+  font-size: 12px;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .staff-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .quick-actions {
+    grid-template-columns: 1fr;
+  }
+  
+  .filter-section {
+    padding: 12px;
+  }
+  
+  .staff-table {
+    font-size: 12px;
+  }
+}

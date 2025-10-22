@@ -239,6 +239,12 @@ const GymDashboard = () => {
             onClick={() => navigate('/gym/notifications')}
           />
           <ActionCard
+            title="Staff & Trainers"
+            description="Manage gym staff and trainers"
+            icon={<TeamOutlined />}
+            onClick={() => navigate('/gym/staff')}
+          />
+          <ActionCard
             title="Support"
             description="Get help & contact support"
             icon={<SettingOutlined />}

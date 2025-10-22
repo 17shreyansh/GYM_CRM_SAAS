@@ -27,6 +27,8 @@ import PaymentHistory from './pages/PaymentHistory';
 import Support from './pages/Support';
 import NotificationManagement from './pages/NotificationManagement';
 import Notifications from './pages/Notifications';
+import StaffManagement from './pages/StaffManagement';
+import StaffInvitations from './pages/StaffInvitations';
 import GymProtectedRoute from './components/GymProtectedRoute';
 import './App.css';
 
@@ -129,6 +131,13 @@ const AppRoutes = () => {
           </GymProtectedRoute>
         </ProtectedRoute>
       } />
+      <Route path="/gym/staff" element={
+        <ProtectedRoute allowedRoles={['gym_owner']}>
+          <GymProtectedRoute>
+            <StaffManagement />
+          </GymProtectedRoute>
+        </ProtectedRoute>
+      } />
       <Route path="/gym-suspended" element={<GymSuspended />} />
       <Route path="/dashboard" element={
         <ProtectedRoute allowedRoles={['member']}>
@@ -163,6 +172,11 @@ const AppRoutes = () => {
       <Route path="/notifications" element={
         <ProtectedRoute allowedRoles={['member']}>
           <Notifications />
+        </ProtectedRoute>
+      } />
+      <Route path="/staff-invitations" element={
+        <ProtectedRoute allowedRoles={['member']}>
+          <StaffInvitations />
         </ProtectedRoute>
       } />
       <Route path="/support" element={

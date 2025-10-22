@@ -14,6 +14,8 @@ import paymentRoutes from './routes/payment.js';
 import supportRoutes from './routes/support.js';
 import fileRoutes from './routes/fileRoutes.js';
 import subscriptionRoutes from './routes/subscription.js';
+import staffRoutes from './routes/staff.js';
+import invitationRoutes from './routes/invitation.js';
  
 dotenv.config();
 
@@ -51,6 +53,8 @@ app.use('/api/payment', paymentRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/files', fileRoutes);
 app.use('/api/subscription', subscriptionRoutes);
+app.use('/api/staff', staffRoutes);
+app.use('/api/invitations', invitationRoutes);
 
 // Connect to database and start server
 connectDB().then(() => {
