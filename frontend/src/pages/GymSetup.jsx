@@ -16,7 +16,7 @@ const GymSetup = () => {
   const [logoFileList, setLogoFileList] = useState([]);
   const [bannerFileList, setBannerFileList] = useState([]);
   const [galleryFileList, setGalleryFileList] = useState([]);
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  // Token is now handled via cookies, no need to store in state
 
   useEffect(() => {
     fetchGym();
@@ -300,7 +300,49 @@ const GymSetup = () => {
             </Form>
           </TabPane>
           
-          <TabPane tab="Media & Social" key="3">
+          <TabPane tab="Bank Details" key="3">
+            <Form form={form} onFinish={onFinishUpdate} layout="vertical">
+              <Card title="Bank Account Information" size="small">
+                <Row gutter={[24, 16]}>
+                  <Col xs={24} lg={12}>
+                    <Form.Item name={['bank_details', 'account_holder_name']} label="Account Holder Name">
+                      <Input size="large" placeholder="Full name as per bank records" />
+                    </Form.Item>
+                  </Col>
+                  <Col xs={24} lg={12}>
+                    <Form.Item name={['bank_details', 'account_number']} label="Account Number">
+                      <Input size="large" placeholder="Bank account number" />
+                    </Form.Item>
+                  </Col>
+                </Row>
+                <Row gutter={[24, 16]}>
+                  <Col xs={24} lg={8}>
+                    <Form.Item name={['bank_details', 'bank_name']} label="Bank Name">
+                      <Input size="large" placeholder="Bank name" />
+                    </Form.Item>
+                  </Col>
+                  <Col xs={24} lg={8}>
+                    <Form.Item name={['bank_details', 'ifsc_code']} label="IFSC Code">
+                      <Input size="large" placeholder="IFSC code" />
+                    </Form.Item>
+                  </Col>
+                  <Col xs={24} lg={8}>
+                    <Form.Item name={['bank_details', 'branch_name']} label="Branch Name">
+                      <Input size="large" placeholder="Branch name" />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </Card>
+              
+              <Form.Item style={{ marginTop: 24 }}>
+                <Button type="primary" htmlType="submit" size="large">
+                  Update Bank Details
+                </Button>
+              </Form.Item>
+            </Form>
+          </TabPane>
+          
+          <TabPane tab="Media & Social" key="4">
             <Form form={form} onFinish={onFinishUpdate} layout="vertical">
               <Form.Item label="Gym Logo">
                 <FileUpload
@@ -309,7 +351,6 @@ const GymSetup = () => {
                   fileList={logoFileList}
                   setFileList={setLogoFileList}
                   maxCount={1}
-                  token={token}
                   gymName={gym.gym_display_name || gym.gym_name}
                   onUploadSuccess={handleUploadSuccess}
                 />
@@ -322,7 +363,6 @@ const GymSetup = () => {
                   fileList={bannerFileList}
                   setFileList={setBannerFileList}
                   maxCount={3}
-                  token={token}
                   gymName={gym.gym_display_name || gym.gym_name}
                   onUploadSuccess={handleUploadSuccess}
                 />
@@ -335,7 +375,6 @@ const GymSetup = () => {
                   fileList={galleryFileList}
                   setFileList={setGalleryFileList}
                   maxCount={10}
-                  token={token}
                   gymName={gym.gym_display_name || gym.gym_name}
                   onUploadSuccess={handleUploadSuccess}
                 />

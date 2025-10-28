@@ -14,7 +14,8 @@ import {
   MenuUnfoldOutlined,
   BellOutlined,
   ShopOutlined,
-  CreditCardOutlined
+  CreditCardOutlined,
+  GiftOutlined
 } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -64,6 +65,7 @@ const Layout = ({ children }) => {
         { key: '/admin/gyms', icon: <TeamOutlined />, label: 'Gyms' },
         { key: '/admin/users', icon: <UserOutlined />, label: 'Users' },
         { key: '/admin/subscriptions', icon: <FileTextOutlined />, label: 'Subscription Plans' },
+        { key: '/admin/trials', icon: <GiftOutlined />, label: 'Trial Management' },
         { key: '/support', icon: <CustomerServiceOutlined />, label: 'Support' },
       ];
     }

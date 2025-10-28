@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Table, Button, Modal, Form, Input, InputNumber, Switch, message, Space } from 'antd';
+import { Card, Table, Button, Modal, Form, Input, InputNumber, Switch, message, Space, Tag } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import api from '../utils/api';
 
@@ -79,6 +79,7 @@ const AdminSubscriptions = () => {
     { title: 'Price (₹)', dataIndex: 'price', key: 'price', render: (price) => `₹${price}` },
     { title: 'Duration (days)', dataIndex: 'duration', key: 'duration' },
     { title: 'Member Limit', dataIndex: 'member_limit', key: 'member_limit', render: (limit) => limit === 0 ? 'Unlimited' : limit },
+    { title: 'Type', dataIndex: 'is_trial', key: 'is_trial', render: (isTrial) => isTrial ? <Tag color="green">Trial</Tag> : <Tag color="blue">Regular</Tag> },
     { title: 'Active', dataIndex: 'isActive', key: 'isActive', render: (active) => active ? 'Yes' : 'No' },
     {
       title: 'Actions',
@@ -126,6 +127,9 @@ const AdminSubscriptions = () => {
           </Form.Item>
           <Form.Item name="features" label="Features (comma separated)">
             <Input.TextArea rows={3} placeholder="Feature 1, Feature 2, Feature 3" />
+          </Form.Item>
+          <Form.Item name="is_trial" label="Trial Plan" valuePropName="checked" initialValue={false}>
+            <Switch />
           </Form.Item>
           <Form.Item name="isActive" label="Active" valuePropName="checked" initialValue={true}>
             <Switch />

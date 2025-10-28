@@ -10,35 +10,43 @@ const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
-    if (token && userData) {
-      setUser(JSON.parse(userData));
-    }
-    setLoading(false);
+    // Check if user is authenticated by calling /me endpoint
+    const checkAuth = async () => {
+      try {
+        const response = await api.get('/auth/me');
+        setUser(response.data.user);
+      } catch (error) {
+        // User not authenticated
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    checkAuth();
   }, []);
 
   const login = async (email, password) => {
     const response = await api.post('/auth/login', { email, password });
-    const { token, user } = response.data;
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(user));
+    const { user } = response.data;
     setUser(user);
     return user;
   };
 
   const register = async (userData) => {
     const response = await api.post('/auth/register', userData);
-    const { token, user } = response.data;
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(user));
+    const { user } = response.data;
     setUser(user);
     return user;
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+  const logout = async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch (error) {
+      // Even if logout fails, clear local state
+      console.error('Logout error:', error);
+    }
     setUser(null);
     window.location.href = '/login';
   };

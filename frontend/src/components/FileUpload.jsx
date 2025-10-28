@@ -9,7 +9,6 @@ const FileUpload = ({
   fileList, 
   setFileList, 
   maxCount = 1, 
-  token,
   gymName,
   onUploadSuccess 
 }) => {
@@ -31,7 +30,7 @@ const FileUpload = ({
     setUploading(true);
     
     try {
-      const result = await uploadGymFiles(gymId, filesToUpload, category, token, gymName);
+      const result = await uploadGymFiles(gymId, filesToUpload, category, gymName);
       
       // Update file list with uploaded URLs
       const updatedFileList = [...fileList.filter(f => f.status === 'done')];
@@ -60,7 +59,7 @@ const FileUpload = ({
   const handleRemove = async (file) => {
     if (file.url || file.response?.url) {
       try {
-        await deleteGymFile(gymId, file.url || file.response.url, category, token);
+        await deleteGymFile(gymId, file.url || file.response.url, category);
         message.success('File deleted successfully');
         onUploadSuccess?.();
       } catch (error) {

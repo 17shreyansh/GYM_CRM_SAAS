@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, message, Spin } from 'antd';
-import { CheckCircleOutlined } from '@ant-design/icons';
+import { Card, Button, message, Spin, Alert } from 'antd';
+import { CheckCircleOutlined, GiftOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import api from '../utils/api';
 
 const SubscriptionPlans = ({ onPlanSelect }) => {
@@ -8,9 +8,12 @@ const SubscriptionPlans = ({ onPlanSelect }) => {
   const [loading, setLoading] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [processing, setProcessing] = useState(false);
+  const [trialStatus, setTrialStatus] = useState(null);
+  const [trialLoading, setTrialLoading] = useState(false);
 
   useEffect(() => {
     fetchPlans();
+    checkTrialStatus();
   }, []);
 
   const fetchPlans = async () => {
@@ -21,6 +24,28 @@ const SubscriptionPlans = ({ onPlanSelect }) => {
       message.error('Failed to load plans');
     }
     setLoading(false);
+  };
+
+  const checkTrialStatus = async () => {
+    try {
+      const response = await api.get('/subscription/trial-status');
+      setTrialStatus(response.data);
+    } catch (error) {
+      // Trial status check failed, user might not be authenticated
+      console.log('Trial status check failed:', error);
+    }
+  };
+
+  const handleStartTrial = async () => {
+    setTrialLoading(true);
+    try {
+      const response = await api.post('/subscription/start-trial');
+      message.success('🎉 30-day free trial activated! Full access unlocked - no limitations!');
+      onPlanSelect({ success: true });
+    } catch (error) {
+      message.error(error.response?.data?.message || 'Failed to start trial');
+    }
+    setTrialLoading(false);
   };
 
   const handlePlanSelect = async (plan) => {
@@ -88,6 +113,94 @@ const SubscriptionPlans = ({ onPlanSelect }) => {
       <p style={{ color: '#666', marginBottom: 24 }}>
         Select a subscription plan to access your gym management portal.
       </p>
+
+      {/* Trial Option */}
+      {trialStatus && trialStatus.trial_status === 'available' && (
+        <Card 
+          style={{ 
+            border: '2px solid #52c41a',
+            background: 'linear-gradient(135deg, #f6ffed 0%, #f0f9ff 100%)',
+            marginBottom: 16
+          }}
+        >
+          <div style={{ textAlign: 'center' }}>
+            <GiftOutlined style={{ fontSize: '48px', color: '#52c41a', marginBottom: 16 }} />
+            <h3 style={{ color: '#52c41a', margin: 0 }}>🎉 Start Your FREE Trial!</h3>
+            <p style={{ fontSize: '18px', margin: '8px 0', color: '#389e0d' }}>
+              Get 30 days of complete access - No payment required!
+            </p>
+            <div style={{ 
+              background: 'rgba(255, 193, 7, 0.1)', 
+              border: '1px solid #ffc107', 
+              borderRadius: '8px', 
+              padding: '12px', 
+              margin: '16px 0',
+              textAlign: 'left'
+            }}>
+              <p style={{ margin: '0 0 8px 0', fontWeight: '600', color: '#e65100' }}>
+                🚧 Testing Phase Notice
+              </p>
+              <p style={{ margin: 0, fontSize: '14px', color: '#666', lineHeight: '1.4' }}>
+                We're in our starting phase! If you encounter any issues, please create a support ticket - we'll fix it ASAP. 
+                Got ideas to improve the portal? Share them with us and we'll implement them too!
+              </p>
+            </div>
+            <ul style={{ textAlign: 'left', margin: '16px 0', color: '#666' }}>
+              <li>✅ Complete gym management access</li>
+              <li>✅ Unlimited members</li>
+              <li>✅ All analytics & reports</li>
+              <li>✅ Staff management</li>
+              <li>✅ All portal features included</li>
+              <li>✅ No credit card required</li>
+            </ul>
+            <Button 
+              type="primary" 
+              size="large"
+              icon={<GiftOutlined />}
+              style={{ 
+                background: '#52c41a', 
+                borderColor: '#52c41a',
+                fontSize: '16px',
+                height: '48px',
+                width: '100%'
+              }}
+              loading={trialLoading}
+              onClick={handleStartTrial}
+            >
+              🚀 Start My Free Trial - No Limits!
+            </Button>
+          </div>
+        </Card>
+      )}
+
+      {/* Trial Status Alert */}
+      {trialStatus && trialStatus.trial_status === 'active' && (
+        <Alert
+          message="Trial Active"
+          description={`Your free trial is active. ${trialStatus.days_remaining} days remaining.`}
+          type="success"
+          icon={<ClockCircleOutlined />}
+          style={{ marginBottom: 16 }}
+        />
+      )}
+
+      {trialStatus && trialStatus.trial_status === 'expired' && (
+        <Alert
+          message="Trial Expired"
+          description="Your free trial has expired. Please choose a subscription plan to continue."
+          type="warning"
+          style={{ marginBottom: 16 }}
+        />
+      )}
+
+      {trialStatus && trialStatus.trial_status === 'used' && (
+        <Alert
+          message="Trial Already Used"
+          description="You have already used your free trial. Please choose a subscription plan."
+          type="info"
+          style={{ marginBottom: 16 }}
+        />
+      )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {plans.map(plan => (

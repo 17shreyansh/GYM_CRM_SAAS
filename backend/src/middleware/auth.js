@@ -3,9 +3,10 @@ import User from '../models/User.js';
 
 export const protect = async (req, res, next) => {
   try {
-    let token;
+    let token = req.cookies.token;
     
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    // Fallback to Authorization header for API compatibility
+    if (!token && req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
       token = req.headers.authorization.split(' ')[1];
     }
 

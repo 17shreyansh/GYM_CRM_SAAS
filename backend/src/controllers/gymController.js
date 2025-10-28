@@ -9,7 +9,7 @@ export const createGym = async (req, res) => {
     // Check if user already has a gym
     const existingGym = await Gym.findOne({ owner_user_id: req.user._id });
     if (existingGym) {
-      return res.status(400).json({ success: false, message: 'You already have a gym registered' });
+      return res.status(400).json({ success: false, message: 'You already have a gym registered', gym: existingGym });
     }
 
     const {
@@ -26,6 +26,7 @@ export const createGym = async (req, res) => {
       gst_number,
       pan_number,
       business_number,
+      bank_details,
       plan_type = 'basic'
     } = req.body;
 
@@ -64,6 +65,7 @@ export const createGym = async (req, res) => {
       gst_number,
       pan_number,
       business_number,
+      bank_details,
       plan_type: (plan_type || 'basic').trim().toLowerCase(),
       owner_user_id: req.user._id,
       status: 'active'
@@ -72,7 +74,23 @@ export const createGym = async (req, res) => {
     await gym.save();
     res.status(201).json({ success: true, gym });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    console.error('Gym creation error:', error);
+    let message = 'Failed to create gym';
+    let statusCode = 400;
+    
+    if (error.code === 11000) {
+      if (error.keyPattern?.business_email) {
+        message = 'This business email is already registered with another gym.';
+      } else if (error.keyPattern?.gym_id) {
+        message = 'Gym ID conflict. Please try again.';
+      } else {
+        message = 'This gym information is already registered.';
+      }
+    } else if (error.name === 'ValidationError') {
+      message = Object.values(error.errors)[0]?.message || 'Please check your gym details';
+    }
+    
+    res.status(statusCode).json({ success: false, message });
   }
 };
 
@@ -82,13 +100,18 @@ export const updateGymDetails = async (req, res) => {
     const gymId = req.params.id;
     const updateData = req.body;
     
-    // Remove non-editable fields (plan_type can be edited by admin)
-    const nonEditableFields = ['gym_id', 'gym_name', 'owner_full_name', 'business_email', 
-      'business_phone_number', 'registered_address', 'gst_number', 'pan_number', 
-      'business_number', 'subscription_id', 'owner_user_id', 'verified', 
-      'status', 'subscription_status', 'createdAt', 'updatedAt'];
+    // For initial setup, allow updating core fields
+    const isInitialSetup = req.query.initial_setup === 'true';
     
-    nonEditableFields.forEach(field => delete updateData[field]);
+    if (!isInitialSetup) {
+      // Remove non-editable fields for regular updates
+      const nonEditableFields = ['gym_id', 'gym_name', 'owner_full_name', 'business_email', 
+        'business_phone_number', 'registered_address', 'gst_number', 'pan_number', 
+        'business_number', 'subscription_id', 'owner_user_id', 'verified', 
+        'status', 'subscription_status', 'createdAt', 'updatedAt'];
+      
+      nonEditableFields.forEach(field => delete updateData[field]);
+    }
 
     const gym = await Gym.findOneAndUpdate(
       { _id: gymId, owner_user_id: req.user._id },

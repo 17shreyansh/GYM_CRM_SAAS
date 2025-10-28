@@ -8,10 +8,14 @@ import AdminDashboard from './pages/AdminDashboard';
 import AdminGyms from './pages/AdminGyms';
 import AdminUsers from './pages/AdminUsers';
 import AdminSubscriptions from './pages/AdminSubscriptions';
+import AdminTrials from './pages/AdminTrials';
 import SubscriptionRequired from './pages/SubscriptionRequired';
 import GymDashboard from './pages/GymDashboard';
 import GymSetup from './pages/GymSetup';
 import GymOwnerRegister from './pages/GymOwnerRegister';
+import GymLogin from './pages/GymLogin';
+import MemberLogin from './pages/MemberLogin';
+import LandingPage from './pages/LandingPage';
 import PlanManagement from './pages/PlanManagement';
 import MemberManagement from './pages/MemberManagement';
 import Attendance from './pages/Attendance';
@@ -50,6 +54,8 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/login" element={user ? <Navigate to={user.role === 'admin' ? '/admin' : user.role === 'gym_owner' ? '/gym' : '/dashboard'} /> : <Login />} />
+      <Route path="/gym-login" element={user ? <Navigate to={user.role === 'admin' ? '/admin' : user.role === 'gym_owner' ? '/gym' : '/dashboard'} /> : <GymLogin />} />
+      <Route path="/member-login" element={user ? <Navigate to={user.role === 'admin' ? '/admin' : user.role === 'gym_owner' ? '/gym' : '/dashboard'} /> : <MemberLogin />} />
       <Route path="/admin" element={
         <ProtectedRoute allowedRoles={['admin']}>
           <AdminDashboard />
@@ -191,7 +197,12 @@ const AppRoutes = () => {
           <AdminSubscriptions />
         </ProtectedRoute>
       } />
-      <Route path="/" element={<Navigate to="/login" />} />
+      <Route path="/admin/trials" element={
+        <ProtectedRoute allowedRoles={['admin']}>
+          <AdminTrials />
+        </ProtectedRoute>
+      } />
+      <Route path="/" element={<LandingPage />} />
     </Routes>
   );
 };

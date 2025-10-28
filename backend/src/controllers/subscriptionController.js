@@ -1,5 +1,6 @@
 import SubscriptionPlan from '../models/SubscriptionPlan.js';
 import SubscriptionService from '../services/SubscriptionService.js';
+import TrialService from '../services/TrialService.js';
 
 // Admin: Get all subscription plans
 export const getSubscriptionPlans = async (req, res) => {
@@ -130,6 +131,79 @@ export const checkSubscriptionStatus = async (req, res) => {
 export const cancelSubscription = async (req, res) => {
   try {
     const result = await SubscriptionService.cancelSubscription(req.user._id);
+    
+    if (!result.success) {
+      return res.status(400).json({ success: false, message: result.error });
+    }
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Trial subscription functions
+export const startTrial = async (req, res) => {
+  try {
+    const result = await TrialService.startTrial(req.user._id);
+    
+    if (!result.success) {
+      return res.status(400).json({ success: false, message: result.error });
+    }
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const checkTrialStatus = async (req, res) => {
+  try {
+    const result = await TrialService.checkTrialStatus(req.user._id);
+    
+    if (!result.success) {
+      return res.status(400).json({ success: false, message: result.error });
+    }
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Admin trial management
+export const getAllTrialInfo = async (req, res) => {
+  try {
+    const result = await TrialService.getAllTrialInfo();
+    
+    if (!result.success) {
+      return res.status(400).json({ success: false, message: result.error });
+    }
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const resetTrial = async (req, res) => {
+  try {
+    const result = await TrialService.resetTrial(req.params.gymId);
+    
+    if (!result.success) {
+      return res.status(400).json({ success: false, message: result.error });
+    }
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const extendTrial = async (req, res) => {
+  try {
+    const { additionalDays } = req.body;
+    const result = await TrialService.extendTrial(req.params.gymId, additionalDays);
     
     if (!result.success) {
       return res.status(400).json({ success: false, message: result.error });

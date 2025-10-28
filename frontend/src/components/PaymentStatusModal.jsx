@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Form, Select, Input, Button, Space, message, Timeline, Tag } from 'antd';
 import { DollarOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import api from '../utils/api';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -12,16 +13,7 @@ const PaymentStatusModal = ({ visible, onCancel, onSuccess, member }) => {
   const handleSubmit = async (values) => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/gym/members/${member._id}/payment`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(values)
-      });
-
-      if (!response.ok) throw new Error('Failed to update payment status');
+      await api.patch(`/gym/members/${member._id}/payment`, values);
       
       message.success('Payment status updated successfully');
       onSuccess();

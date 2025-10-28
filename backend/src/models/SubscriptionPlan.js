@@ -7,7 +7,9 @@ const subscriptionPlanSchema = new mongoose.Schema({
   features: [String],
   member_limit: { type: Number, default: 0 }, // 0 = unlimited
   isActive: { type: Boolean, default: true },
-  plan_id: { type: String, unique: true, required: true }
+  plan_id: { type: String, unique: true, required: true },
+  is_trial: { type: Boolean, default: false },
+  trial_duration: { type: Number, default: 30 } // trial duration in days
 }, { timestamps: true });
 
 subscriptionPlanSchema.pre('save', function(next) {

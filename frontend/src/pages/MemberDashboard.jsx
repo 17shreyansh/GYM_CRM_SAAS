@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Row, Col, Button, Modal, Table, Tag, message, Statistic, Space } from 'antd';
+import { Card, Row, Col, Button, Modal, Table, Tag, message, Statistic, Space, Alert } from 'antd';
 import { PlusOutlined, CalendarOutlined, CreditCardOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 
 const MemberDashboard = () => {
+  const navigate = useNavigate();
   const [memberships, setMemberships] = useState([]);
   const [gyms, setGyms] = useState([]);
   const [selectedGym, setSelectedGym] = useState(null);
@@ -113,6 +115,30 @@ const MemberDashboard = () => {
 
   return (
     <div>
+      {/* Testing Phase Banner */}
+      <Alert
+        message="🚧 Testing Phase - Share Your Feedback!"
+        description={
+          <div>
+            <p style={{ margin: '8px 0' }}>
+              We're continuously improving your gym experience. Found an issue or have a feature idea? 
+              Let us know through our support system - we'll implement it quickly!
+            </p>
+            <Button 
+              type="link" 
+              size="small" 
+              onClick={() => navigate('/support')}
+              style={{ padding: 0, height: 'auto' }}
+            >
+              📝 Submit Feedback
+            </Button>
+          </div>
+        }
+        type="info"
+        showIcon
+        style={{ marginBottom: 24 }}
+      />
+
       {/* Stats Cards */}
       <Row gutter={16} style={{ marginBottom: 24 }}>
         <Col span={8}>

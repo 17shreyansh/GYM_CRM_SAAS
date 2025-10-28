@@ -11,6 +11,13 @@ const gymSchema = new mongoose.Schema({
   gst_number: String,
   pan_number: String,
   business_number: String,
+  bank_details: {
+    account_holder_name: String,
+    account_number: String,
+    bank_name: String,
+    ifsc_code: String,
+    branch_name: String
+  },
   plan_type: { 
     type: String, 
     default: 'basic',
@@ -70,10 +77,13 @@ const gymSchema = new mongoose.Schema({
   owner_user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 
   status: { type: String, enum: ['active', 'suspended', 'deleted'], default: 'active' },
-  subscription_status: { type: String, enum: ['active', 'inactive', 'cancelled', 'expired'], default: 'inactive' },
+  subscription_status: { type: String, enum: ['active', 'inactive', 'cancelled', 'expired', 'trial'], default: 'inactive' },
   subscription_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Subscription' },
   subscription_plan: { type: mongoose.Schema.Types.ObjectId, ref: 'SubscriptionPlan' },
   subscription_end_date: Date,
+  trial_status: { type: String, enum: ['available', 'active', 'expired', 'used'], default: 'available' },
+  trial_start_date: Date,
+  trial_end_date: Date,
   last_login: Date,
   payoutAccountId: String,
   commissionRate: { type: Number, default: 0.05 },

@@ -155,6 +155,30 @@ const GymDashboard = () => {
         </div>
       )}
 
+      {/* Testing Phase Banner */}
+      <Alert
+        message="🚧 Testing Phase - We're Here to Help!"
+        description={
+          <div>
+            <p style={{ margin: '8px 0' }}>
+              We're in our starting phase and continuously improving the platform. 
+              If you encounter any issues or have ideas to enhance the portal, please create a support ticket - we'll address it ASAP!
+            </p>
+            <Button 
+              type="link" 
+              size="small" 
+              onClick={() => navigate('/support')}
+              style={{ padding: 0, height: 'auto' }}
+            >
+              📝 Create Support Ticket
+            </Button>
+          </div>
+        }
+        type="info"
+        showIcon
+        style={{ marginBottom: 16 }}
+      />
+
       {/* Status Alert */}
       <div style={{ marginBottom: 24 }}>
         {getStatusAlert()}
@@ -371,6 +395,33 @@ const GymDashboard = () => {
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <span style={{ color: 'var(--text-secondary)' }}>Plan:</span>
                       <Tag color="blue">{gym.plan_type?.toUpperCase()}</Tag>
+                    </div>
+                  </Space>
+                </Card>
+              </Col>
+              
+              <Col xs={24} lg={12}>
+                <Card title="Bank Details" size="small">
+                  <Space direction="vertical" style={{ width: '100%' }} size="middle">
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>Account Holder:</span>
+                      <span style={{ fontWeight: '500' }}>{gym.bank_details?.account_holder_name || 'Not provided'}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>Account Number:</span>
+                      <span style={{ fontWeight: '500' }}>{gym.bank_details?.account_number ? `****${gym.bank_details.account_number.slice(-4)}` : 'Not provided'}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>Bank Name:</span>
+                      <span style={{ fontWeight: '500' }}>{gym.bank_details?.bank_name || 'Not provided'}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>IFSC Code:</span>
+                      <span style={{ fontWeight: '500' }}>{gym.bank_details?.ifsc_code || 'Not provided'}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>Branch:</span>
+                      <span style={{ fontWeight: '500' }}>{gym.bank_details?.branch_name || 'Not provided'}</span>
                     </div>
                   </Space>
                 </Card>

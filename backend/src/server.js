@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import path from 'path';
 import { connectDB } from './utils/database.js';
@@ -34,6 +35,7 @@ app.use(cors({
 // app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
 
 app.use(express.json({ limit: '10mb' }));
+app.use(cookieParser());
 
 // Static file serving
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));

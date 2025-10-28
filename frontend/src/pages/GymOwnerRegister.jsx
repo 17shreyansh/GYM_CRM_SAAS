@@ -24,12 +24,6 @@ const GymOwnerRegister = () => {
   }, []);
 
   const checkUserStatus = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      setLoading(false);
-      return;
-    }
-
     try {
       const userResponse = await api.get('/auth/me');
       const user = userResponse.data.user;
@@ -43,20 +37,22 @@ const GymOwnerRegister = () => {
       
       try {
         const gymResponse = await api.get('/gym/details');
-        setGymData(gymResponse.data.gym);
+        const existingGym = gymResponse.data.gym;
+        setGymData(existingGym);
         
         // Gym exists, check subscription status
-        if (gymResponse.data.gym.subscription_status === 'active') {
+        if (existingGym.subscription_status === 'active') {
           navigate('/gym');
           return;
         } else {
           setCurrentStep(2);
         }
-      } catch {
+      } catch (gymError) {
+        // No gym found, proceed to gym setup
         setCurrentStep(1);
       }
     } catch {
-      localStorage.removeItem('token');
+      // User not authenticated, continue with registration
     }
     
     setLoading(false);
@@ -66,12 +62,12 @@ const GymOwnerRegister = () => {
   const handleUserRegistration = async (values) => {
     try {
       const response = await api.post('/auth/register', { ...values, role: 'gym_owner' });
-      localStorage.setItem('token', response.data.token);
       setUserData(response.data.user);
       message.success('Account created successfully!');
       setCurrentStep(1);
     } catch (error) {
-      message.error(error.response?.data?.message || 'Registration failed');
+      const errorMessage = error.response?.data?.message || 'Registration failed';
+      message.error(errorMessage);
     }
   };
 
@@ -105,10 +101,30 @@ const GymOwnerRegister = () => {
         },
         amenities_list: values.amenities_list || [],
         opening_hours: processedHours,
+        bank_details: values.bank_details || {},
         plan_type: 'basic'
       };
 
-      const response = await api.post('/gym', gymPayload);
+      let response;
+      if (gymData && gymData._id) {
+        // Update existing gym
+        response = await api.patch(`/gym/details/${gymData._id}?initial_setup=true`, gymPayload);
+      } else {
+        // Create new gym
+        try {
+          response = await api.post('/gym', gymPayload);
+        } catch (createError) {
+          if (createError.response?.status === 400 && createError.response?.data?.gym) {
+            // Gym already exists, use it
+            setGymData(createError.response.data.gym);
+            message.success('Gym setup completed!');
+            setCurrentStep(2);
+            return;
+          }
+          throw createError;
+        }
+      }
+      
       setGymData(response.data.gym);
       message.success('Gym setup completed!');
       setCurrentStep(2);
@@ -171,7 +187,27 @@ const GymOwnerRegister = () => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
+                  <Form.Item 
+                    name="username" 
+                    label="Username" 
+                    rules={[
+                      { required: true, message: 'Username is required' },
+                      { min: 3, message: 'Username must be at least 3 characters' },
+                      { pattern: /^[a-zA-Z0-9_]+$/, message: 'Username can only contain letters, numbers, and underscores' }
+                    ]}
+                  >
+                    <Input size="large" placeholder="Username (letters, numbers, _ only)" />
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Row gutter={16}>
+                <Col span={12}>
                   <Form.Item name="email" label="Email" rules={[{ required: true, type: 'email' }]}>
+                    <Input size="large" />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="phone" label="Phone" rules={[{ required: true }]}>
                     <Input size="large" />
                   </Form.Item>
                 </Col>
@@ -241,6 +277,37 @@ const GymOwnerRegister = () => {
               <Form.Item name="description" label="Description">
                 <Input.TextArea rows={3} />
               </Form.Item>
+
+              <h4>Bank Details</h4>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item name={['bank_details', 'account_holder_name']} label="Account Holder Name">
+                    <Input />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name={['bank_details', 'account_number']} label="Account Number">
+                    <Input />
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Row gutter={16}>
+                <Col span={8}>
+                  <Form.Item name={['bank_details', 'bank_name']} label="Bank Name">
+                    <Input />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item name={['bank_details', 'ifsc_code']} label="IFSC Code">
+                    <Input />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item name={['bank_details', 'branch_name']} label="Branch Name">
+                    <Input />
+                  </Form.Item>
+                </Col>
+              </Row>
 
               <Form.Item name="amenities_list" label="Amenities">
                 <Checkbox.Group>

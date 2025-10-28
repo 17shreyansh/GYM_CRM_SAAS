@@ -19,14 +19,18 @@ const GymProtectedRoute = ({ children }) => {
 
   const checkSubscription = async () => {
     try {
-      // Try to fetch gym dashboard which requires subscription
+      // First check if gym exists
+      await api.get('/gym/details');
+      // Then check subscription
       await api.get('/gym/dashboard');
       setHasValidSubscription(true);
     } catch (error) {
-      if (error.response?.data?.subscription_required || error.response?.data?.subscription_expired) {
+      if (error.response?.status === 404) {
+        // Gym not found, redirect to registration
+        setHasValidSubscription(false);
+      } else if (error.response?.data?.subscription_required || error.response?.data?.subscription_expired) {
         setHasValidSubscription(false);
       } else {
-        // Other errors, assume subscription is valid
         setHasValidSubscription(true);
       }
     } finally {
@@ -52,7 +56,7 @@ const GymProtectedRoute = ({ children }) => {
   }
 
   if (user.role === 'gym_owner' && !hasValidSubscription) {
-    return <Navigate to="/subscription-required" />;
+    return <Navigate to="/gym-owner-register" />;
   }
 
   return children;
