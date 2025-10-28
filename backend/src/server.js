@@ -29,7 +29,7 @@ app.use(helmet({
   contentSecurityPolicy: false
 }));
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173'],
+  origin: ['http://localhost:3000', 'http://localhost:5173', 'https://ordiin.com', 'https://www.ordiin.com', 'https://app.ordiin.com', 'https://www.app.ordiin.com'],
   credentials: true
 }));
 // app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
