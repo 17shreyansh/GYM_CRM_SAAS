@@ -17,7 +17,7 @@ import fileRoutes from './routes/fileRoutes.js';
 import subscriptionRoutes from './routes/subscription.js';
 import staffRoutes from './routes/staff.js';
 import invitationRoutes from './routes/invitation.js';
- 
+
 dotenv.config();
 
 const app = express();
@@ -29,12 +29,12 @@ app.use(helmet({
   contentSecurityPolicy: false
 }));
 app.use(cors({
-  origin: ['https://app.ordiin.com'],
+  origin: ['https://app.ordiin.com', 'https://ordiin.com'],
   credentials: true
 }));
 // app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
 
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '100mb' }));
 app.use(cookieParser());
 
 // Static file serving

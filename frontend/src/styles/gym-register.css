@@ -1,0 +1,916 @@
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+
+.gym-register-container {
+  min-height: 100vh;
+  min-height: 100dvh;
+  position: relative;
+  overflow: hidden;
+  background: hsl(240 10% 3.9%);
+  font-family: 'Rajdhani', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  padding: clamp(16px, 5vw, 20px);
+  box-sizing: border-box;
+}
+
+.gym-register-background {
+  position: absolute;
+  inset: 0;
+}
+
+.gym-register-wrapper {
+  max-width: min(900px, calc(100vw - 32px));
+  margin: 0 auto;
+  position: relative;
+  z-index: 10;
+}
+
+.gym-register-card {
+  background: hsl(240 10% 7% / 0.9);
+  backdrop-filter: blur(20px);
+  border-radius: clamp(12px, 4vw, 20px);
+  border: 1px solid hsl(213 94% 68% / 0.3);
+  box-shadow: 0 0 30px hsl(213 94% 68% / 0.4), 0 0 60px hsl(213 94% 68% / 0.2);
+  padding: clamp(20px, 6vw, 32px);
+  margin: 16px;
+  box-sizing: border-box;
+}
+
+.gym-register-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.gym-register-title {
+  font-size: clamp(20px, 6vw, 28px);
+  font-weight: bold;
+  color: hsl(240 5% 90%);
+  margin: 0 0 16px 0;
+  font-family: 'Orbitron', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.gym-register-back {
+  background: hsl(240 10% 10%) !important;
+  border: 1px solid hsl(213 94% 68% / 0.3) !important;
+  color: hsl(240 5% 90%) !important;
+  border-radius: 12px !important;
+  height: 44px !important;
+  margin-bottom: 24px !important;
+  transition: all 0.3s ease !important;
+}
+
+.gym-register-back:hover {
+  border-color: hsl(213 94% 68%) !important;
+  color: hsl(213 94% 68%) !important;
+  transform: translateX(-4px) !important;
+}
+
+.gym-register-steps {
+  margin-bottom: 32px !important;
+}
+
+.gym-register-steps .ant-steps-item-title {
+  color: hsl(240 5% 65%) !important;
+  font-family: 'Rajdhani', sans-serif !important;
+  font-weight: 500 !important;
+}
+
+.gym-register-steps .ant-steps-item-process .ant-steps-item-title {
+  color: hsl(213 94% 68%) !important;
+}
+
+.gym-register-steps .ant-steps-item-finish .ant-steps-item-title {
+  color: hsl(142 76% 36%) !important;
+}
+
+.gym-register-form {
+  background: transparent;
+}
+
+.gym-register-section-title {
+  font-size: clamp(16px, 4vw, 20px);
+  font-weight: 600;
+  color: hsl(240 5% 90%);
+  margin: 0 0 20px 0;
+  font-family: 'Orbitron', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid hsl(213 94% 68% / 0.2);
+}
+
+.gym-register-subsection {
+  margin: 24px 0;
+}
+
+.gym-register-subsection h4 {
+  font-size: 17px;
+  font-weight: 600;
+  color: hsl(213 94% 68%);
+  margin: 0 0 16px 0;
+  font-family: 'Rajdhani', sans-serif;
+  padding-bottom: 4px;
+  border-bottom: 1px solid hsl(213 94% 68% / 0.2);
+}
+
+.gym-register-warning {
+  background: hsl(38 92% 50% / 0.1);
+  border: 1px solid hsl(38 92% 50% / 0.3);
+  color: hsl(38 92% 50%);
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-weight: 500;
+  font-size: 14px;
+  font-family: 'Rajdhani', sans-serif;
+}
+
+.gym-register-qr-upload {
+  position: relative;
+  width: 100%;
+}
+
+.gym-register-file-input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.gym-register-upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  border: 2px dashed hsl(213 94% 68% / 0.4);
+  border-radius: 12px;
+  background: hsl(240 10% 8%);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 20px;
+  text-align: center;
+}
+
+.gym-register-upload-label:hover {
+  border-color: hsl(213 94% 68%);
+  background: hsl(240 10% 10%);
+}
+
+.gym-register-upload-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.gym-register-upload-text {
+  color: hsl(240 5% 90%);
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 4px;
+  font-family: 'Rajdhani', sans-serif;
+}
+
+.gym-register-upload-hint {
+  color: hsl(240 5% 65%);
+  font-size: 14px;
+  font-family: 'Rajdhani', sans-serif;
+}
+
+.gym-register-qr-preview {
+  max-width: 200px;
+  max-height: 200px;
+  margin-top: 16px;
+  border-radius: 8px;
+  border: 1px solid hsl(213 94% 68% / 0.3);
+}
+
+.gym-register-input {
+  border-radius: 12px !important;
+  height: clamp(44px, 10vw, 48px) !important;
+  font-size: clamp(15px, 4vw, 16px) !important;
+  border: 1px solid hsl(213 94% 68% / 0.4) !important;
+  background: hsl(240 10% 8%) !important;
+  color: hsl(240 5% 90%) !important;
+  font-family: 'Rajdhani', sans-serif !important;
+  transition: all 0.3s ease !important;
+  padding: 0 16px !important;
+  font-weight: 500 !important;
+}
+
+.gym-register-input::placeholder {
+  color: hsl(240 5% 60%) !important;
+  opacity: 1 !important;
+  font-weight: 400 !important;
+}
+
+.gym-register-input:focus {
+  border-color: hsl(213 94% 68%) !important;
+  box-shadow: 0 0 0 3px hsl(213 94% 68% / 0.2), 0 0 20px hsl(213 94% 68% / 0.3) !important;
+  transform: scale(1.01) !important;
+}
+
+@media (max-width: 768px) {
+  .gym-register-input:focus {
+    transform: none !important;
+    box-shadow: 0 0 0 3px hsl(213 94% 68% / 0.3) !important;
+  }
+}
+
+.gym-register-input:hover {
+  border-color: hsl(213 94% 68% / 0.6) !important;
+}
+
+.gym-register-textarea {
+  border-radius: 12px !important;
+  font-size: clamp(15px, 4vw, 16px) !important;
+  border: 1px solid hsl(213 94% 68% / 0.4) !important;
+  background: hsl(240 10% 8%) !important;
+  color: hsl(240 5% 90%) !important;
+  font-family: 'Rajdhani', sans-serif !important;
+  transition: all 0.3s ease !important;
+  padding: 12px 16px !important;
+  font-weight: 500 !important;
+  resize: vertical !important;
+}
+
+.gym-register-textarea::placeholder {
+  color: hsl(240 5% 60%) !important;
+  opacity: 1 !important;
+  font-weight: 400 !important;
+}
+
+.gym-register-textarea:focus {
+  border-color: hsl(213 94% 68%) !important;
+  box-shadow: 0 0 0 3px hsl(213 94% 68% / 0.2) !important;
+}
+
+.gym-register-textarea:hover {
+  border-color: hsl(213 94% 68% / 0.6) !important;
+}
+
+.gym-register-button {
+  height: clamp(44px, 12vw, 52px) !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, hsl(213 94% 68%), hsl(213 94% 58%)) !important;
+  border: none !important;
+  font-weight: 600 !important;
+  font-size: clamp(14px, 4vw, 16px) !important;
+  font-family: 'Rajdhani', sans-serif !important;
+  box-shadow: 0 0 20px hsl(213 94% 68% / 0.4), 0 4px 15px hsl(213 94% 68% / 0.3) !important;
+  transition: all 0.3s ease !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.gym-register-button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 0 30px hsl(213 94% 68% / 0.6), 0 8px 25px hsl(213 94% 68% / 0.4) !important;
+}
+
+@media (max-width: 768px) {
+  .gym-register-button:hover {
+    transform: none !important;
+  }
+  
+  .gym-register-button:active {
+    transform: scale(0.98) !important;
+    transition: transform 0.1s ease !important;
+  }
+}
+
+.gym-register-success-card {
+  background: hsl(142 76% 36% / 0.1) !important;
+  border: 1px solid hsl(142 76% 36% / 0.3) !important;
+  border-radius: 12px !important;
+  margin-bottom: 24px !important;
+}
+
+.gym-register-success-card .ant-card-body {
+  padding: 16px !important;
+}
+
+.gym-register-success-text {
+  margin: 0 !important;
+  color: hsl(142 76% 36%) !important;
+  font-weight: 500 !important;
+  font-family: 'Rajdhani', sans-serif !important;
+}
+
+.gym-register-form-label {
+  color: hsl(240 5% 90%) !important;
+  font-weight: 600 !important;
+  font-family: 'Rajdhani', sans-serif !important;
+  margin-bottom: 8px !important;
+  font-size: 15px !important;
+  display: block !important;
+}
+
+.gym-register-checkbox {
+  color: hsl(240 5% 90%) !important;
+  font-family: 'Rajdhani', sans-serif !important;
+  font-weight: 500 !important;
+  font-size: 15px !important;
+}
+
+.gym-register-checkbox .ant-checkbox {
+  border-radius: 4px !important;
+}
+
+.gym-register-checkbox .ant-checkbox-inner {
+  border-color: hsl(213 94% 68% / 0.4) !important;
+  background: hsl(240 10% 8%) !important;
+}
+
+.gym-register-checkbox .ant-checkbox:hover .ant-checkbox-inner {
+  border-color: hsl(213 94% 68%) !important;
+}
+
+.gym-register-checkbox .ant-checkbox-checked .ant-checkbox-inner {
+  background-color: hsl(213 94% 68%) !important;
+  border-color: hsl(213 94% 68%) !important;
+}
+
+.gym-register-checkbox .ant-checkbox-checked::after {
+  border-color: hsl(213 94% 68%) !important;
+}
+
+.gym-register-time-picker {
+  border-radius: 8px !important;
+  border: 1px solid hsl(213 94% 68% / 0.4) !important;
+  background: hsl(240 10% 8%) !important;
+  color: hsl(240 5% 90%) !important;
+  height: 40px !important;
+}
+
+.gym-register-time-picker .ant-picker-input > input {
+  color: hsl(240 5% 90%) !important;
+  font-family: 'Rajdhani', sans-serif !important;
+  font-weight: 500 !important;
+}
+
+.gym-register-time-picker .ant-picker-input > input::placeholder {
+  color: hsl(240 5% 60%) !important;
+  opacity: 1 !important;
+}
+
+.gym-register-time-picker:hover {
+  border-color: hsl(213 94% 68% / 0.6) !important;
+}
+
+.gym-register-time-picker.ant-picker-focused {
+  border-color: hsl(213 94% 68%) !important;
+  box-shadow: 0 0 0 2px hsl(213 94% 68% / 0.2) !important;
+}
+
+.gym-register-day-label {
+  line-height: 40px !important;
+  font-weight: 600 !important;
+  color: hsl(240 5% 90%) !important;
+  font-family: 'Rajdhani', sans-serif !important;
+  font-size: 15px !important;
+  text-align: left !important;
+}
+
+.gym-register-loading {
+  min-height: 100vh;
+  background: hsl(240 10% 3.9%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Background animations */
+.gradient-cyber {
+  background: linear-gradient(135deg, hsl(240 10% 3.9%) 0%, hsl(240 10% 10%) 50%, hsl(240 10% 3.9%) 100%);
+}
+
+.circuit-pattern {
+  background-image: 
+    linear-gradient(hsl(213 94% 68% / 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(213 94% 68% / 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: -1px -1px;
+}
+
+@keyframes gridMove {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(50px, 50px, 0);
+  }
+}
+
+.grid-background {
+  background-image: 
+    linear-gradient(hsl(213 94% 68% / 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(213 94% 68% / 0.08) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: gridMove 20s linear infinite;
+}
+
+/* Mobile-first React Native style */
+@media (max-width: 768px) {
+  .gym-register-container {
+    padding: 0;
+    background: hsl(240 10% 3.9%);
+  }
+  
+  .gym-register-wrapper {
+    max-width: 100%;
+    margin: 0;
+  }
+  
+  .gym-register-card {
+    margin: 0;
+    padding: 20px 16px;
+    border-radius: 0;
+    border: none;
+    background: hsl(240 10% 3.9%);
+    box-shadow: none;
+    min-height: 100vh;
+  }
+  
+  .gym-register-header {
+    margin-bottom: 32px;
+    padding-top: 20px;
+  }
+  
+  .gym-register-title {
+    font-size: 24px !important;
+    text-align: center;
+  }
+  
+  .gym-register-back {
+    position: fixed !important;
+    top: 20px !important;
+    left: 16px !important;
+    z-index: 100 !important;
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 22px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  .gym-register-steps {
+    margin-bottom: 32px !important;
+    background: hsl(240 10% 7%) !important;
+    padding: 16px !important;
+    border-radius: 16px !important;
+    border: 1px solid hsl(213 94% 68% / 0.2) !important;
+  }
+  
+  .gym-register-steps .ant-steps-item {
+    flex-direction: column !important;
+  }
+  
+  .gym-register-section-title {
+    font-size: 20px !important;
+    margin-bottom: 24px !important;
+    padding: 16px !important;
+    background: hsl(240 10% 7%) !important;
+    border-radius: 12px !important;
+    border: 1px solid hsl(213 94% 68% / 0.2) !important;
+  }
+  
+  .gym-register-input {
+    height: 56px !important;
+    font-size: 16px !important;
+    border-radius: 16px !important;
+    padding: 0 20px !important;
+    border-width: 2px !important;
+  }
+  
+  .gym-register-textarea {
+    border-radius: 16px !important;
+    font-size: 16px !important;
+    padding: 16px 20px !important;
+    border-width: 2px !important;
+  }
+  
+  .gym-register-button {
+    height: 56px !important;
+    border-radius: 16px !important;
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    margin-top: 32px !important;
+    margin-bottom: 32px !important;
+  }
+  
+  .gym-register-form-label {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    margin-bottom: 12px !important;
+  }
+  
+  .gym-register-subsection {
+    margin: 32px 0 !important;
+    background: hsl(240 10% 7%) !important;
+    padding: 20px !important;
+    border-radius: 16px !important;
+    border: 1px solid hsl(213 94% 68% / 0.2) !important;
+  }
+  
+  .gym-register-subsection h4 {
+    font-size: 18px !important;
+    margin-bottom: 20px !important;
+    text-align: center !important;
+  }
+  
+  .gym-register-checkbox {
+    font-size: 16px !important;
+    padding: 12px 0 !important;
+  }
+  
+  .gym-register-checkbox .ant-checkbox {
+    transform: scale(1.2) !important;
+    margin-right: 12px !important;
+  }
+  
+  .gym-register-time-picker {
+    height: 56px !important;
+    border-radius: 16px !important;
+    border-width: 2px !important;
+  }
+  
+  .gym-register-day-label {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    text-align: center !important;
+    margin-bottom: 12px !important;
+    line-height: 1.2 !important;
+    background: hsl(213 94% 68% / 0.1) !important;
+    padding: 8px !important;
+    border-radius: 8px !important;
+  }
+  
+  /* Mobile form spacing */
+  .ant-row {
+    margin-bottom: 8px !important;
+  }
+  
+  .ant-col {
+    margin-bottom: 16px !important;
+  }
+  
+  .ant-form-item {
+    margin-bottom: 24px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .gym-register-container {
+    padding: 0;
+  }
+  
+  .gym-register-card {
+    padding: 16px 12px;
+  }
+  
+  .gym-register-header {
+    margin-bottom: 24px;
+    padding-top: 16px;
+  }
+  
+  .gym-register-title {
+    font-size: 22px !important;
+  }
+  
+  .gym-register-back {
+    top: 16px !important;
+    left: 12px !important;
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 20px !important;
+  }
+  
+  .gym-register-input {
+    height: 52px !important;
+    font-size: 16px !important;
+  }
+  
+  .gym-register-button {
+    height: 52px !important;
+    font-size: 17px !important;
+  }
+  
+  .gym-register-time-picker {
+    height: 52px !important;
+  }
+  
+  .gym-register-subsection {
+    padding: 16px !important;
+  }
+}
+
+/* Form validation styles */
+.gym-register-form .ant-form-item-has-error .gym-register-input {
+  border-color: hsl(0 84% 60%) !important;
+}
+
+.gym-register-form .ant-form-item-has-error .gym-register-textarea {
+  border-color: hsl(0 84% 60%) !important;
+}
+
+.gym-register-form .ant-form-item-has-error .gym-register-time-picker {
+  border-color: hsl(0 84% 60%) !important;
+}
+
+.gym-register-form .ant-form-item-explain-error {
+  color: hsl(0 84% 60%) !important;
+  font-family: 'Rajdhani', sans-serif !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+}
+
+/* Loading states */
+.gym-register-button[disabled] {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+}
+
+/* Focus improvements */
+.gym-register-input:focus-visible {
+  outline: none !important;
+}
+
+.gym-register-textarea:focus-visible {
+  outline: none !important;
+}
+
+/* Ant Design overrides for dark theme */
+.gym-register-form .ant-picker-dropdown {
+  background: hsl(240 10% 10%) !important;
+  border: 1px solid hsl(213 94% 68% / 0.3) !important;
+}
+
+.gym-register-form .ant-picker-time-panel {
+  background: hsl(240 10% 10%) !important;
+}
+
+.gym-register-form .ant-picker-time-panel-column > li {
+  color: hsl(240 5% 90%) !important;
+}
+
+.gym-register-form .ant-picker-time-panel-column > li:hover {
+  background: hsl(213 94% 68% / 0.1) !important;
+}
+
+.gym-register-form .ant-picker-time-panel-column > li.ant-picker-time-panel-cell-selected {
+  background: hsl(213 94% 68%) !important;
+  color: white !important;
+}
+
+/* Mobile native app enhancements */
+@media (max-width: 768px) {
+  /* Disable text selection for better mobile feel */
+  .gym-register-container * {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  
+  /* Allow text selection only in inputs */
+  .gym-register-input,
+  .gym-register-textarea {
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+    user-select: text !important;
+  }
+  
+  /* Mobile scroll behavior */
+  .gym-register-container {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+  
+  /* Touch feedback for interactive elements */
+  .gym-register-button,
+  .gym-register-back,
+  .gym-register-checkbox {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  
+  /* Mobile keyboard optimization */
+  .gym-register-input[type="email"] {
+    -webkit-appearance: none;
+  }
+  
+  .gym-register-input[type="tel"] {
+    -webkit-appearance: none;
+  }
+  
+  /* Better mobile form layout */
+  .gym-register-form .ant-row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  
+  .gym-register-form .ant-col {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  
+  /* Mobile-specific spacing for form items */
+  .gym-register-form .ant-col:not(:last-child) {
+    margin-bottom: 0 !important;
+  }
+  
+  /* Mobile success card */
+  .gym-register-success-card {
+    border-radius: 16px !important;
+    margin-bottom: 32px !important;
+    background: hsl(142 76% 36% / 0.15) !important;
+    border: 2px solid hsl(142 76% 36% / 0.4) !important;
+  }
+  
+  .gym-register-success-card .ant-card-body {
+    padding: 20px !important;
+  }
+  
+  .gym-register-success-text {
+    font-size: 16px !important;
+    text-align: center !important;
+  }
+  
+  /* Mobile amenities grid */
+  .gym-register-checkbox {
+    margin-bottom: 16px !important;
+    background: hsl(240 10% 7%) !important;
+    padding: 16px !important;
+    border-radius: 12px !important;
+    border: 1px solid hsl(213 94% 68% / 0.2) !important;
+    transition: all 0.2s ease !important;
+  }
+  
+  .gym-register-checkbox:active {
+    background: hsl(213 94% 68% / 0.1) !important;
+    transform: scale(0.98) !important;
+  }
+  
+  /* Mobile time picker improvements */
+  .gym-register-time-picker .ant-picker-input {
+    padding: 0 20px !important;
+  }
+  
+  /* Mobile operating hours layout */
+  .gym-register-subsection .ant-row {
+    background: hsl(240 10% 5%) !important;
+    margin-bottom: 12px !important;
+    padding: 16px !important;
+    border-radius: 12px !important;
+    border: 1px solid hsl(213 94% 68% / 0.1) !important;
+  }
+  
+  .gym-register-day-row {
+    background: hsl(240 10% 5%) !important;
+    margin-bottom: 16px !important;
+    padding: 16px !important;
+    border-radius: 12px !important;
+    border: 1px solid hsl(213 94% 68% / 0.1) !important;
+  }
+  
+  .gym-register-checkbox-small {
+    font-size: 14px !important;
+    color: hsl(240 5% 90%) !important;
+    font-family: 'Rajdhani', sans-serif !important;
+  }
+  
+  .gym-register-checkbox-small .ant-checkbox {
+    transform: scale(1.1) !important;
+  }
+  
+  .gym-register-warning {
+    background: hsl(38 92% 50% / 0.1) !important;
+    border: 2px solid hsl(38 92% 50% / 0.4) !important;
+    color: hsl(38 92% 50%) !important;
+    padding: 16px !important;
+    border-radius: 12px !important;
+    margin-bottom: 20px !important;
+    font-weight: 600 !important;
+    text-align: center !important;
+    font-size: 15px !important;
+  }
+  
+  .gym-register-upload-label {
+    min-height: 140px !important;
+    padding: 24px !important;
+    border-width: 3px !important;
+  }
+  
+  .gym-register-upload-icon {
+    font-size: 40px !important;
+    margin-bottom: 12px !important;
+  }
+  
+  .gym-register-upload-text {
+    font-size: 17px !important;
+    margin-bottom: 8px !important;
+  }
+  
+  .gym-register-upload-hint {
+    font-size: 15px !important;
+  }
+  
+  .gym-register-qr-preview {
+    max-width: 150px !important;
+    max-height: 150px !important;
+    margin: 16px auto 0 !important;
+    display: block !important;
+  }
+}
+
+/* SubscriptionPlans component overrides */
+.gym-register-card .ant-card {
+  background: hsl(240 10% 8%) !important;
+  border: 1px solid hsl(213 94% 68% / 0.4) !important;
+  border-radius: 12px !important;
+}
+
+.gym-register-card .ant-card:hover {
+  border-color: hsl(213 94% 68%) !important;
+  box-shadow: 0 0 20px hsl(213 94% 68% / 0.3) !important;
+}
+
+.gym-register-card .ant-card-body {
+  background: transparent !important;
+}
+
+.gym-register-card .ant-alert {
+  background: hsl(240 10% 8%) !important;
+  border-radius: 12px !important;
+}
+
+.gym-register-card .ant-alert-success {
+  background: hsl(142 76% 36% / 0.1) !important;
+  border: 1px solid hsl(142 76% 36% / 0.3) !important;
+}
+
+.gym-register-card .ant-alert-warning {
+  background: hsl(38 92% 50% / 0.1) !important;
+  border: 1px solid hsl(38 92% 50% / 0.3) !important;
+}
+
+.gym-register-card .ant-alert-info {
+  background: hsl(213 94% 68% / 0.1) !important;
+  border: 1px solid hsl(213 94% 68% / 0.3) !important;
+}
+
+.gym-register-card .ant-alert-message {
+  color: hsl(240 5% 90%) !important;
+  font-family: 'Rajdhani', sans-serif !important;
+  font-weight: 600 !important;
+}
+
+.gym-register-card .ant-alert-description {
+  color: hsl(240 5% 65%) !important;
+  font-family: 'Rajdhani', sans-serif !important;
+}
+
+.gym-register-card .ant-spin {
+  color: hsl(213 94% 68%) !important;
+}
+
+.gym-register-card .ant-spin-dot-item {
+  background-color: hsl(213 94% 68%) !important;
+}
+
+/* iOS specific improvements */
+@supports (-webkit-touch-callout: none) {
+  @media (max-width: 768px) {
+    .gym-register-input,
+    .gym-register-textarea {
+      -webkit-appearance: none;
+      border-radius: 16px !important;
+    }
+    
+    .gym-register-button {
+      -webkit-appearance: none;
+    }
+  }
+}
+
+@supports (padding: max(0px)) {
+  .gym-register-container {
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+  
+  @media (max-width: 768px) {
+    .gym-register-container {
+      padding-top: max(20px, env(safe-area-inset-top));
+      padding-bottom: max(32px, env(safe-area-inset-bottom));
+    }
+  }
+}

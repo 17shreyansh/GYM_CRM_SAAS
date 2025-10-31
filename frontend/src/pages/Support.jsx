@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Modal, Form, Input, Select, Table, Tag, List, Row, Col, Statistic, message } from 'antd';
-import { PlusOutlined, CustomerServiceOutlined, MessageOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { Button, Modal, Form, Input, Select, Tag, List, message, Upload, Image, Card, Row, Col } from 'antd';
+import { PlusOutlined, CustomerServiceOutlined, MessageOutlined, ClockCircleOutlined, UploadOutlined, FileImageOutlined, VideoCameraOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../utils/api';
 
@@ -14,6 +14,8 @@ const Support = () => {
   const [form] = Form.useForm();
   const [replyForm] = Form.useForm();
   const [stats, setStats] = useState({ open: 0, resolved: 0, total: 0 });
+  const [fileList, setFileList] = useState([]);
+  const [replyFileList, setReplyFileList] = useState([]);
 
   useEffect(() => {
     fetchTickets();
@@ -49,10 +51,26 @@ const Support = () => {
 
   const createTicket = async (values) => {
     try {
-      await api.post('/support', values);
+      const formData = new FormData();
+      Object.keys(values).forEach(key => {
+        formData.append(key, values[key]);
+      });
+      
+      // Add files to FormData
+      fileList.forEach(file => {
+        if (file.originFileObj) {
+          formData.append('attachments', file.originFileObj);
+        }
+      });
+      
+      await api.post('/support', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      
       message.success('Support ticket created successfully');
       setTicketModal(false);
       form.resetFields();
+      setFileList([]);
       fetchTickets();
     } catch (error) {
       message.error('Failed to create ticket');
@@ -62,10 +80,28 @@ const Support = () => {
 
   const replyToTicket = async (values) => {
     try {
-      await api.post(`/support/${selectedTicket._id}/reply`, values);
+      const formData = new FormData();
+      Object.keys(values).forEach(key => {
+        formData.append(key, values[key]);
+      });
+      
+      // Add files to FormData
+      replyFileList.forEach(file => {
+        if (file.originFileObj) {
+          formData.append('attachments', file.originFileObj);
+        }
+      });
+      
+      const response = await api.post(`/support/${selectedTicket._id}/reply`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      
       message.success('Reply sent successfully');
-      setReplyModal(false);
       replyForm.resetFields();
+      setReplyFileList([]);
+      
+      // Update selected ticket with new data
+      setSelectedTicket(response.data);
       fetchTickets();
     } catch (error) {
       message.error('Failed to send reply');
@@ -80,6 +116,79 @@ const Support = () => {
       case 'resolved': return 'green';
       default: return 'default';
     }
+  };
+
+  const handleFileChange = ({ fileList: newFileList }) => {
+    setFileList(newFileList);
+  };
+
+  const handleReplyFileChange = ({ fileList: newFileList }) => {
+    setReplyFileList(newFileList);
+  };
+
+  const beforeUpload = (file) => {
+    const isValidType = file.type.startsWith('image/') || file.type.startsWith('video/');
+    if (!isValidType) {
+      message.error('You can only upload image or video files!');
+      return false;
+    }
+    const isLt50M = file.size / 1024 / 1024 < 50;
+    if (!isLt50M) {
+      message.error('File must be smaller than 50MB!');
+      return false;
+    }
+    return false; // Prevent auto upload
+  };
+
+  const renderAttachments = (attachments) => {
+    if (!attachments || attachments.length === 0) return null;
+    
+    return (
+      <div style={{ marginTop: 8 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+          {attachments.map((attachment, index) => (
+            <div key={index} style={{ position: 'relative' }}>
+              {attachment.type === 'image' ? (
+                <Image
+                  width={100}
+                  height={100}
+                  src={`${import.meta.env.VITE_BACKEND_URL}${attachment.url}`}
+                  style={{ objectFit: 'cover', borderRadius: 4 }}
+                  preview={{
+                    src: `${import.meta.env.VITE_BACKEND_URL}${attachment.url}`
+                  }}
+                />
+              ) : (
+                <a 
+                  href={`${import.meta.env.VITE_BACKEND_URL}${attachment.url}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  style={{ textDecoration: 'none' }}
+                >
+                  <div style={{ 
+                    width: 100, 
+                    height: 100, 
+                    background: '#f0f0f0', 
+                    borderRadius: 4,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    border: '1px solid #d9d9d9'
+                  }}>
+                    <VideoCameraOutlined style={{ fontSize: 24, color: '#666' }} />
+                    <div style={{ fontSize: 10, color: '#666', marginTop: 4 }}>
+                      Video
+                    </div>
+                  </div>
+                </a>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   const columns = [
@@ -123,58 +232,121 @@ const Support = () => {
 
   return (
     <div>
-      {/* Stats Cards */}
-      <Row gutter={16} style={{ marginBottom: 24 }}>
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title="Total Tickets"
-              value={stats.total}
-              prefix={<CustomerServiceOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title="Open Tickets"
-              value={stats.open}
-              prefix={<ClockCircleOutlined />}
-              valueStyle={{ color: '#ff4d4f' }}
-            />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title="Resolved Tickets"
-              value={stats.resolved}
-              prefix={<MessageOutlined />}
-              valueStyle={{ color: '#3f8600' }}
-            />
-          </Card>
-        </Col>
-      </Row>
+      <div className="mobile-stats-grid">
+        <div className="mobile-stat-card">
+          <div className="mobile-stat-icon">
+            <CustomerServiceOutlined />
+          </div>
+          <div className="mobile-stat-value">{stats.total}</div>
+          <div className="mobile-stat-label">Total Tickets</div>
+        </div>
+        
+        <div className="mobile-stat-card">
+          <div className="mobile-stat-icon" style={{ background: 'var(--error-color)' }}>
+            <ClockCircleOutlined />
+          </div>
+          <div className="mobile-stat-value" style={{ color: 'var(--error-color)' }}>{stats.open}</div>
+          <div className="mobile-stat-label">Open Tickets</div>
+        </div>
+        
+        <div className="mobile-stat-card gradient-card">
+          <div className="mobile-stat-icon">
+            <MessageOutlined />
+          </div>
+          <div className="mobile-stat-value">{stats.resolved}</div>
+          <div className="mobile-stat-label">Resolved</div>
+        </div>
+      </div>
 
-      {/* Tickets Table */}
-      <Card title="Support Tickets" extra={
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => setTicketModal(true)}>
-          New Ticket
-        </Button>
-      }>
-        <Table 
-          dataSource={tickets} 
-          columns={columns} 
-          rowKey="_id"
-          pagination={{ pageSize: 10 }}
-        />
-      </Card>
+      <div className="mobile-action-grid" style={{ marginBottom: 20 }}>
+        <div className="mobile-action-card" onClick={() => setTicketModal(true)}>
+          <div className="mobile-action-icon">
+            <PlusOutlined />
+          </div>
+          <div className="mobile-action-title">New Ticket</div>
+        </div>
+      </div>
+
+      {tickets.length > 0 ? (
+        <div style={{ display: 'grid', gap: '12px' }}>
+          {tickets.map(ticket => (
+            <div key={ticket._id} className="mobile-card">
+              <div className="mobile-card-body">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                  <h4 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '16px' }}>
+                    {ticket.title}
+                  </h4>
+                  <Tag color={getStatusColor(ticket.status)}>
+                    {ticket.status.replace('_', ' ').toUpperCase()}
+                  </Tag>
+                </div>
+                
+                <div style={{ display: 'grid', gap: '8px', marginBottom: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>Type:</span>
+                    <Tag color="blue" size="small">
+                      {ticket.type.replace('_', ' ').toUpperCase()}
+                    </Tag>
+                  </div>
+                  
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>Assigned:</span>
+                    <span style={{ fontSize: '14px', color: 'var(--text-primary)' }}>
+                      {ticket.assignedTo === 'admin' ? 'Platform Admin' : 'Gym Owner'}
+                    </span>
+                  </div>
+                  
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>Created:</span>
+                    <span style={{ fontSize: '14px', color: 'var(--text-primary)' }}>
+                      {new Date(ticket.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                  
+                  {ticket.attachments && ticket.attachments.length > 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>Attachments:</span>
+                      <span style={{ fontSize: '14px', color: 'var(--primary-color)' }}>
+                        <FileImageOutlined /> {ticket.attachments.length} file(s)
+                      </span>
+                    </div>
+                  )}
+                </div>
+                
+                <Button 
+                  type="primary"
+                  icon={<MessageOutlined />}
+                  onClick={() => { 
+                    setSelectedTicket(ticket); 
+                    setReplyModal(true); 
+                  }}
+                  block
+                >
+                  View Chat
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="mobile-card">
+          <div className="mobile-card-body" style={{ textAlign: 'center', padding: 40 }}>
+            <CustomerServiceOutlined style={{ fontSize: 48, color: 'var(--text-muted)', marginBottom: 16 }} />
+            <h3 style={{ color: 'var(--text-secondary)' }}>No Support Tickets</h3>
+            <p style={{ color: 'var(--text-muted)' }}>Create your first support ticket to get help</p>
+          </div>
+        </div>
+      )}
 
       {/* Create Ticket Modal */}
       <Modal 
         title="Create Support Ticket" 
         open={ticketModal} 
-        onCancel={() => setTicketModal(false)} 
+        onCancel={() => {
+          setTicketModal(false);
+          form.resetFields();
+          setFileList([]);
+        }} 
         footer={null}
         width={600}
       >
@@ -211,6 +383,27 @@ const Support = () => {
             />
           </Form.Item>
           
+          <Form.Item label="Screenshots/Videos (Optional)">
+            <Upload
+              fileList={fileList}
+              onChange={handleFileChange}
+              beforeUpload={beforeUpload}
+              multiple
+              accept="image/*,video/*"
+              listType="picture-card"
+            >
+              {fileList.length >= 5 ? null : (
+                <div>
+                  <UploadOutlined />
+                  <div style={{ marginTop: 8 }}>Upload</div>
+                </div>
+              )}
+            </Upload>
+            <div style={{ fontSize: '12px', color: '#666', marginTop: 4 }}>
+              Upload screenshots or videos to help us understand your issue better. Max 5 files, 50MB each.
+            </div>
+          </Form.Item>
+          
           <Form.Item>
             <Button type="primary" htmlType="submit" block size="large">
               Create Ticket
@@ -223,7 +416,11 @@ const Support = () => {
       <Modal 
         title={`Ticket: ${selectedTicket?.title}`} 
         open={replyModal} 
-        onCancel={() => setReplyModal(false)} 
+        onCancel={() => {
+          setReplyModal(false);
+          replyForm.resetFields();
+          setReplyFileList([]);
+        }} 
         footer={null} 
         width={700}
       >
@@ -272,7 +469,12 @@ const Support = () => {
                           </span>
                         </div>
                       }
-                      description={<div style={{ whiteSpace: 'pre-wrap' }}>{msg.message}</div>}
+                      description={
+                        <div>
+                          <div style={{ whiteSpace: 'pre-wrap' }}>{msg.message}</div>
+                          {renderAttachments(msg.attachments)}
+                        </div>
+                      }
                     />
                   </List.Item>
                 )}
@@ -288,6 +490,25 @@ const Support = () => {
                     rows={3}
                   />
                 </Form.Item>
+                
+                <Form.Item label="Attachments (Optional)">
+                  <Upload
+                    fileList={replyFileList}
+                    onChange={handleReplyFileChange}
+                    beforeUpload={beforeUpload}
+                    multiple
+                    accept="image/*,video/*"
+                    listType="picture-card"
+                  >
+                    {replyFileList.length >= 5 ? null : (
+                      <div>
+                        <UploadOutlined />
+                        <div style={{ marginTop: 8 }}>Upload</div>
+                      </div>
+                    )}
+                  </Upload>
+                </Form.Item>
+                
                 <Form.Item>
                   <Button type="primary" htmlType="submit" icon={<MessageOutlined />}>
                     Send Message

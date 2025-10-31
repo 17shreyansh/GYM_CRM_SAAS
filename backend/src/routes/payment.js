@@ -19,7 +19,7 @@ router.post('/create-order', protect, async (req, res) => {
     const options = {
       amount: plan.price * 100, // amount in paise
       currency: 'INR',
-      receipt: `gym_${gymId}_plan_${planId}_${Date.now()}`,
+      receipt: `ordiin_${gymId}_plan_${planId}_${Date.now()}`,
     };
 
     const order = await razorpay.orders.create(options);

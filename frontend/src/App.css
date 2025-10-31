@@ -5,6 +5,8 @@
   padding: 0;
 }
 
+/* Use default Ant Design input styles */
+
 /* Staff Management Styles */
 .staff-card {
   border-radius: 12px;

@@ -73,6 +73,14 @@ const gymSchema = new mongoose.Schema({
     online: { type: Boolean, default: true }
   },
   
+  // Payment Settings
+  payment_settings: {
+    qr_code_image: String, // QR code image URL
+    upi_id: String,
+    payment_instructions: String,
+    manual_approval: { type: Boolean, default: true }
+  },
+  
   // System / Internal Fields
   owner_user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 

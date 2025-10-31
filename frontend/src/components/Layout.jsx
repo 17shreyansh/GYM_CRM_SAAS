@@ -15,7 +15,8 @@ import {
   BellOutlined,
   ShopOutlined,
   CreditCardOutlined,
-  GiftOutlined
+  GiftOutlined,
+  DollarOutlined
 } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -76,6 +77,15 @@ const Layout = ({ children }) => {
         { key: '/gym/plans', icon: <FileTextOutlined />, label: 'Plans' },
         { key: '/gym/members', icon: <TeamOutlined />, label: 'Members' },
         { key: '/gym/attendance', icon: <CalendarOutlined />, label: 'Attendance' },
+        { 
+          key: 'payments', 
+          icon: <DollarOutlined />, 
+          label: 'Payments',
+          children: [
+            { key: '/gym/payment-settings', label: 'Payment Settings' },
+            { key: '/gym/payment-requests', label: 'Payment Requests' }
+          ]
+        },
         { key: '/gym/notifications', icon: <BellOutlined />, label: 'Notifications' },
         { key: '/gym/qr', icon: <QrcodeOutlined />, label: 'QR Code' },
         { key: '/support', icon: <CustomerServiceOutlined />, label: 'Support' },
@@ -92,29 +102,38 @@ const Layout = ({ children }) => {
     ];
   };
 
-  const userMenu = (
-    <Menu>
-      <Menu.Item key="profile" icon={<UserOutlined />} onClick={() => navigate('/profile')}>
-        Profile
-      </Menu.Item>
-      <Menu.Item key="settings" icon={<SettingOutlined />}>
-        Settings
-      </Menu.Item>
-      <Menu.Divider />
-      <Menu.Item key="logout" icon={<LogoutOutlined />} onClick={logout}>
-        Logout
-      </Menu.Item>
-    </Menu>
-  );
+  const userMenuItems = [
+    {
+      key: 'profile',
+      icon: <UserOutlined />,
+      label: 'Profile',
+      onClick: () => navigate('/profile')
+    },
+    {
+      key: 'settings',
+      icon: <SettingOutlined />,
+      label: 'Settings'
+    },
+    {
+      type: 'divider'
+    },
+    {
+      key: 'logout',
+      icon: <LogoutOutlined />,
+      label: 'Logout',
+      onClick: logout
+    }
+  ];
 
   const siderStyle = {
-    background: 'linear-gradient(180deg, #1e293b 0%, #334155 100%)',
+    background: '#ffffff',
     borderRight: '1px solid #e2e8f0',
     position: 'fixed',
     height: '100vh',
     left: 0,
     top: 0,
-    zIndex: 1001
+    zIndex: 1001,
+    boxShadow: '2px 0 8px rgba(0,0,0,0.1)'
   };
 
   const headerStyle = {
@@ -164,7 +183,7 @@ const Layout = ({ children }) => {
         {/* Logo/Brand Section */}
         <div style={{ 
           padding: collapsed ? '16px 8px' : '20px 24px', 
-          borderBottom: '1px solid rgba(255,255,255,0.1)',
+          borderBottom: '1px solid #e2e8f0',
           display: 'flex',
           alignItems: 'center',
           gap: '12px'
@@ -193,25 +212,25 @@ const Layout = ({ children }) => {
               fontWeight: 'bold',
               fontSize: collapsed ? '14px' : '16px'
             }}>
-              {user?.role === 'gym_owner' ? 'G' : user?.role === 'admin' ? 'A' : 'M'}
+              💪
             </div>
           )}
           {!collapsed && (
             <div>
               <div style={{ 
-                color: 'white', 
+                color: '#0f172a', 
                 fontWeight: '600', 
                 fontSize: '16px',
                 lineHeight: '1.2'
               }}>
                 {user?.role === 'gym_owner' && gym ? 
                   (gym.gym_display_name || gym.gym_name) : 
-                  'Gym SaaS'
+                  'ORDIIN'
                 }
               </div>
               {user?.role === 'gym_owner' && gym && (
                 <div style={{ 
-                  color: 'rgba(255,255,255,0.7)', 
+                  color: '#64748b', 
                   fontSize: '12px'
                 }}>
                   {gym.location?.city || 'Gym Portal'}
@@ -223,7 +242,6 @@ const Layout = ({ children }) => {
 
         {/* Navigation Menu */}
         <Menu
-          theme="dark"
           mode="inline"
           selectedKeys={[location.pathname]}
           items={getMenuItems()}
@@ -253,7 +271,7 @@ const Layout = ({ children }) => {
               icon={<MenuFoldOutlined />}
               onClick={() => setCollapsed(true)}
               style={{
-                color: 'white',
+                color: '#64748b',
                 fontSize: '16px',
                 width: 32,
                 height: 32,
@@ -304,7 +322,7 @@ const Layout = ({ children }) => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             {user?.role === 'member' && <NotificationBell />}
             
-            <Dropdown overlay={userMenu} placement="bottomRight" trigger={['click']}>
+            <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" trigger={['click']}>
               <Button 
                 type="text" 
                 style={{ 

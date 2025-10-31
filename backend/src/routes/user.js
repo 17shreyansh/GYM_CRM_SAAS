@@ -99,6 +99,7 @@ router.get('/gyms/:id/plans', protect, async (req, res) => {
 router.post('/join', protect, async (req, res) => {
   try {
     const { gymId, planId, joinMethod } = req.body;
+    console.log('Join request:', { gymId, planId, joinMethod, userId: req.user._id });
     
     const existingMember = await Member.findOne({
       user: req.user._id,
@@ -115,11 +116,90 @@ router.post('/join', protect, async (req, res) => {
       gym: gymId,
       plan: planId,
       joinMethod,
-      status: joinMethod === 'cash' ? 'pending' : 'active'
+      status: 'pending',
+      paymentStatus: 'unpaid'
     });
 
     await member.save();
     res.status(201).json(member);
+  } catch (error) {
+    console.error('Join gym error:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Submit payment proof
+router.post('/submit-payment', protect, async (req, res) => {
+  try {
+    const { membershipId, transaction_id, amount, payment_date, notes, paymentProofImage } = req.body;
+    
+    const member = await Member.findOne({
+      _id: membershipId,
+      user: req.user._id
+    });
+    
+    if (!member) {
+      return res.status(404).json({ message: 'Membership not found' });
+    }
+    
+    if (member.paymentStatus === 'paid') {
+      return res.status(400).json({ message: 'Payment already completed' });
+    }
+    
+    // Update member with payment proof
+    member.paymentProof = {
+      image: paymentProofImage,
+      transaction_id,
+      amount: parseFloat(amount),
+      payment_date: new Date(payment_date),
+      notes
+    };
+    member.paymentStatus = 'pending_verification';
+    await member.save();
+    
+    // Create payment record
+    const payment = new Payment({
+      member: member._id,
+      gym: member.gym,
+      amount: parseFloat(amount),
+      source: 'qr_manual',
+      status: 'pending_verification',
+      paymentProof: {
+        image: paymentProofImage,
+        transaction_id,
+        payment_date: new Date(payment_date),
+        notes
+      }
+    });
+    
+    await payment.save();
+    
+    res.json({ 
+      success: true, 
+      message: 'Payment proof submitted successfully. Awaiting gym owner verification.',
+      payment_id: payment._id
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get gym payment settings
+router.get('/gyms/:id/payment-settings', protect, async (req, res) => {
+  try {
+    const gym = await Gym.findById(req.params.id).select('payment_settings');
+    if (!gym) {
+      return res.status(404).json({ message: 'Gym not found' });
+    }
+    
+    res.json({
+      payment_settings: gym.payment_settings || {
+        qr_code_image: null,
+        upi_id: '',
+        payment_instructions: 'Please pay using the QR code and submit payment proof.',
+        manual_approval: true
+      }
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

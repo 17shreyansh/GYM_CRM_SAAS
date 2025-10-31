@@ -2,8 +2,9 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import Layout from './components/Layout';
-import Login from './pages/Login';
+import ResponsiveLayout from './components/ResponsiveLayout';
+import AuthPage from './pages/AuthPage';
+import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminGyms from './pages/AdminGyms';
 import AdminUsers from './pages/AdminUsers';
@@ -13,8 +14,7 @@ import SubscriptionRequired from './pages/SubscriptionRequired';
 import GymDashboard from './pages/GymDashboard';
 import GymSetup from './pages/GymSetup';
 import GymOwnerRegister from './pages/GymOwnerRegister';
-import GymLogin from './pages/GymLogin';
-import MemberLogin from './pages/MemberLogin';
+
 import LandingPage from './pages/LandingPage';
 import PlanManagement from './pages/PlanManagement';
 import MemberManagement from './pages/MemberManagement';
@@ -25,6 +25,7 @@ import GymSubscriptions from './pages/GymSubscriptions';
 import GymSuspended from './pages/GymSuspended';
 import MemberDashboard from './pages/MemberDashboard';
 import MemberProfile from './pages/MemberProfile';
+import UserProfile from './pages/UserProfile';
 import GymDiscovery from './pages/GymDiscovery';
 import GymDetail from './pages/GymDetail';
 import PaymentHistory from './pages/PaymentHistory';
@@ -33,19 +34,23 @@ import NotificationManagement from './pages/NotificationManagement';
 import Notifications from './pages/Notifications';
 import StaffManagement from './pages/StaffManagement';
 import StaffInvitations from './pages/StaffInvitations';
+import PaymentSettings from './pages/PaymentSettings';
+import PaymentRequests from './pages/PaymentRequests';
+import PaymentPage from './pages/PaymentPage';
 import GymProtectedRoute from './components/GymProtectedRoute';
 import './App.css';
+import './styles/mobile.css';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
   
   if (loading) return <div>Loading...</div>;
-  if (!user) return <Navigate to="/login" />;
+  if (!user) return <Navigate to="/" />;
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/" />;
   }
   
-  return <Layout>{children}</Layout>;
+  return <ResponsiveLayout>{children}</ResponsiveLayout>;
 };
 
 const AppRoutes = () => {
@@ -53,9 +58,10 @@ const AppRoutes = () => {
   
   return (
     <Routes>
-      <Route path="/login" element={user ? <Navigate to={user.role === 'admin' ? '/admin' : user.role === 'gym_owner' ? '/gym' : '/dashboard'} /> : <Login />} />
-      <Route path="/gym-login" element={user ? <Navigate to={user.role === 'admin' ? '/admin' : user.role === 'gym_owner' ? '/gym' : '/dashboard'} /> : <GymLogin />} />
-      <Route path="/member-login" element={user ? <Navigate to={user.role === 'admin' ? '/admin' : user.role === 'gym_owner' ? '/gym' : '/dashboard'} /> : <MemberLogin />} />
+      <Route path="/admin-login" element={user ? <Navigate to={user.role === 'admin' ? '/admin' : user.role === 'gym_owner' ? '/gym' : '/dashboard'} /> : <AdminLogin />} />
+      <Route path="/login" element={user ? <Navigate to={user.role === 'admin' ? '/admin' : user.role === 'gym_owner' ? '/gym' : '/dashboard'} /> : <AuthPage />} />
+      <Route path="/gym-login" element={user ? <Navigate to={user.role === 'admin' ? '/admin' : user.role === 'gym_owner' ? '/gym' : '/dashboard'} /> : <AuthPage />} />
+      <Route path="/member-login" element={user ? <Navigate to={user.role === 'admin' ? '/admin' : user.role === 'gym_owner' ? '/gym' : '/dashboard'} /> : <AuthPage />} />
       <Route path="/admin" element={
         <ProtectedRoute allowedRoles={['admin']}>
           <AdminDashboard />
@@ -144,6 +150,20 @@ const AppRoutes = () => {
           </GymProtectedRoute>
         </ProtectedRoute>
       } />
+      <Route path="/gym/payment-settings" element={
+        <ProtectedRoute allowedRoles={['gym_owner']}>
+          <GymProtectedRoute>
+            <PaymentSettings />
+          </GymProtectedRoute>
+        </ProtectedRoute>
+      } />
+      <Route path="/gym/payment-requests" element={
+        <ProtectedRoute allowedRoles={['gym_owner']}>
+          <GymProtectedRoute>
+            <PaymentRequests />
+          </GymProtectedRoute>
+        </ProtectedRoute>
+      } />
       <Route path="/gym-suspended" element={<GymSuspended />} />
       <Route path="/dashboard" element={
         <ProtectedRoute allowedRoles={['member']}>
@@ -152,7 +172,7 @@ const AppRoutes = () => {
       } />
       <Route path="/profile" element={
         <ProtectedRoute allowedRoles={['member']}>
-          <MemberProfile />
+          <UserProfile />
         </ProtectedRoute>
       } />
       <Route path="/gyms" element={
@@ -163,6 +183,16 @@ const AppRoutes = () => {
       <Route path="/gym/:slug" element={
         <ProtectedRoute allowedRoles={['member']}>
           <GymDetail />
+        </ProtectedRoute>
+      } />
+      <Route path="/payment/:gymId/:planId" element={
+        <ProtectedRoute allowedRoles={['member']}>
+          <PaymentPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/memberships" element={
+        <ProtectedRoute allowedRoles={['member']}>
+          <MemberDashboard />
         </ProtectedRoute>
       } />
       <Route path="/payments" element={
@@ -202,7 +232,7 @@ const AppRoutes = () => {
           <AdminTrials />
         </ProtectedRoute>
       } />
-      <Route path="/" element={<LandingPage />} />
+      <Route path="/" element={user ? <Navigate to={user.role === 'admin' ? '/admin' : user.role === 'gym_owner' ? '/gym' : '/dashboard'} /> : <AuthPage />} />
     </Routes>
   );
 };
@@ -212,25 +242,56 @@ function App() {
     <ConfigProvider 
       theme={{ 
         token: { 
-          colorPrimary: '#2563eb',
-          borderRadius: 8,
-          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+          colorPrimary: '#6366f1',
+          borderRadius: 12,
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+          colorBgContainer: '#ffffff',
+          colorBgElevated: '#ffffff',
+          colorBorder: '#e2e8f0',
+          colorText: '#0f172a',
+          colorTextSecondary: '#475569',
+          fontSize: 16,
+          controlHeight: 44,
+          borderRadiusLG: 16,
+          borderRadiusSM: 8
         },
         components: {
           Card: {
-            borderRadiusLG: 12,
-            paddingLG: 24
+            borderRadiusLG: 16,
+            paddingLG: 24,
+            boxShadowTertiary: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px 0 rgb(0 0 0 / 0.06)'
           },
           Button: {
-            borderRadius: 8,
-            controlHeight: 40
+            borderRadius: 12,
+            controlHeight: 44,
+            fontWeight: 500,
+            primaryShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)'
           },
           Input: {
-            borderRadius: 8,
-            controlHeight: 40
+            borderRadius: 12,
+            controlHeight: 44,
+            paddingInline: 16,
+            fontSize: 16
+          },
+          Select: {
+            borderRadius: 12,
+            controlHeight: 44
           },
           Table: {
-            borderRadiusLG: 12
+            borderRadiusLG: 16
+          },
+          Menu: {
+            itemBg: 'transparent',
+            itemSelectedBg: '#6366f1',
+            itemSelectedColor: '#ffffff',
+            itemHoverBg: '#f1f5f9',
+            borderRadius: 12
+          },
+          Modal: {
+            borderRadiusLG: 16
+          },
+          Drawer: {
+            borderRadiusLG: 16
           }
         }
       }}

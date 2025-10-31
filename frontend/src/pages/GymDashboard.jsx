@@ -157,7 +157,7 @@ const GymDashboard = () => {
 
       {/* Testing Phase Banner */}
       <Alert
-        message="🚧 Testing Phase - We're Here to Help!"
+        message=" Share Your Feedback!"
         description={
           <div>
             <p style={{ margin: '8px 0' }}>

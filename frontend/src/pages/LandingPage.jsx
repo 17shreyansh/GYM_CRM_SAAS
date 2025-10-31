@@ -44,7 +44,7 @@ const LandingPage = () => {
     }}>
       <div style={{ textAlign: 'center', marginBottom: 48, color: 'white' }}>
         <h1 style={{ fontSize: 48, margin: 0, color: 'white', fontWeight: 'bold' }}>
-          Gym SaaS Platform
+          ORDIIN
         </h1>
         <p style={{ fontSize: 20, margin: '16px 0 0 0', opacity: 0.9 }}>
           Complete gym management solution for everyone
@@ -129,7 +129,7 @@ const LandingPage = () => {
         color: 'rgba(255,255,255,0.8)',
         fontSize: 14 
       }}>
-        <p>© 2024 Gym SaaS Platform. All rights reserved.</p>
+        <p>© 2024 ORDIIN. All rights reserved.</p>
       </div>
     </div>
   );

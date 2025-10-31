@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Card, List, Button, Typography, Empty, Tag, Space } from 'antd';
+import { Button, Tag } from 'antd';
 import { BellOutlined, CheckOutlined } from '@ant-design/icons';
 import api from '../utils/api';
-
-const { Title, Text } = Typography;
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -61,86 +59,108 @@ const Notifications = () => {
 
   return (
     <div>
-      <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <Title level={2} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <BellOutlined />
-            Notifications
-          </Title>
-          <Text type="secondary">
-            {unreadCount > 0 ? `${unreadCount} unread notifications` : 'All notifications read'}
-          </Text>
+      <div className="mobile-card">
+        <div className="mobile-card-body">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <h2 style={{ margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-primary)' }}>
+                <BellOutlined />
+                Notifications
+              </h2>
+              <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '14px' }}>
+                {unreadCount > 0 ? `${unreadCount} unread` : 'All read'}
+              </p>
+            </div>
+            {unreadCount > 0 && (
+              <Button 
+                type="primary" 
+                icon={<CheckOutlined />}
+                onClick={markAllAsRead}
+                size="small"
+              >
+                Mark All Read
+              </Button>
+            )}
+          </div>
         </div>
-        {unreadCount > 0 && (
-          <Button 
-            type="primary" 
-            icon={<CheckOutlined />}
-            onClick={markAllAsRead}
-          >
-            Mark All Read
-          </Button>
-        )}
       </div>
 
-      <Card>
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: 40 }}>
-            Loading notifications...
+      {loading ? (
+        <div className="mobile-card">
+          <div className="mobile-card-body" style={{ textAlign: 'center', padding: 40 }}>
+            <BellOutlined style={{ fontSize: 48, color: 'var(--text-muted)', marginBottom: 16 }} />
+            <p style={{ color: 'var(--text-secondary)' }}>Loading notifications...</p>
           </div>
-        ) : notifications.length === 0 ? (
-          <Empty 
-            description="No notifications yet" 
-            style={{ padding: 40 }}
-          />
-        ) : (
-          <List
-            dataSource={notifications}
-            renderItem={(item) => (
-              <List.Item
-                style={{
-                  backgroundColor: item.read ? 'transparent' : '#f6ffed',
-                  borderLeft: `4px solid ${item.type === 'success' ? '#52c41a' : item.type === 'warning' ? '#faad14' : item.type === 'error' ? '#ff4d4f' : '#1890ff'}`,
-                  padding: '16px 24px',
-                  cursor: item.read ? 'default' : 'pointer'
-                }}
-                onClick={() => !item.read && markAsRead(item._id)}
-              >
-                <List.Item.Meta
-                  title={
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontWeight: item.read ? 'normal' : 'bold' }}>
-                        {item.title}
-                      </span>
-                      <Space>
-                        <Tag color={getTypeColor(item.type)}>{item.type}</Tag>
-                        {!item.read && (
-                          <div style={{ 
-                            width: 8, 
-                            height: 8, 
-                            borderRadius: '50%', 
-                            backgroundColor: '#1890ff' 
-                          }} />
-                        )}
-                      </Space>
-                    </div>
-                  }
-                  description={
-                    <div>
-                      <p style={{ margin: '8px 0', color: '#595959' }}>
-                        {item.message}
-                      </p>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#8c8c8c' }}>
-                        <span>{item.gym_id?.gym_display_name || item.gym_id?.gym_name}</span>
-                        <span>{new Date(item.createdAt).toLocaleString()}</span>
-                      </div>
-                    </div>
-                  }
-                />
-              </List.Item>
-            )}
-          />
-        )}
-      </Card>
+        </div>
+      ) : notifications.length === 0 ? (
+        <div className="mobile-card">
+          <div className="mobile-card-body" style={{ textAlign: 'center', padding: 40 }}>
+            <BellOutlined style={{ fontSize: 48, color: 'var(--text-muted)', marginBottom: 16 }} />
+            <h3 style={{ color: 'var(--text-secondary)' }}>No Notifications</h3>
+            <p style={{ color: 'var(--text-muted)' }}>You're all caught up!</p>
+          </div>
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gap: '12px' }}>
+          {notifications.map((item) => (
+            <div 
+              key={item._id}
+              className="mobile-card"
+              style={{
+                backgroundColor: item.read ? 'var(--bg-primary)' : 'rgb(99 102 241 / 0.05)',
+                borderLeft: `4px solid ${item.type === 'success' ? 'var(--success-color)' : item.type === 'warning' ? 'var(--warning-color)' : item.type === 'error' ? 'var(--error-color)' : 'var(--primary-color)'}`,
+                cursor: item.read ? 'default' : 'pointer'
+              }}
+              onClick={() => !item.read && markAsRead(item._id)}
+            >
+              <div className="mobile-card-body">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                  <h4 style={{ 
+                    margin: 0, 
+                    fontWeight: item.read ? 500 : 600,
+                    color: 'var(--text-primary)',
+                    fontSize: '16px'
+                  }}>
+                    {item.title}
+                  </h4>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <Tag color={getTypeColor(item.type)} style={{ margin: 0 }}>
+                      {item.type}
+                    </Tag>
+                    {!item.read && (
+                      <div style={{ 
+                        width: 8, 
+                        height: 8, 
+                        borderRadius: '50%', 
+                        backgroundColor: 'var(--primary-color)'
+                      }} />
+                    )}
+                  </div>
+                </div>
+                
+                <p style={{ 
+                  margin: '8px 0 12px 0', 
+                  color: 'var(--text-secondary)',
+                  fontSize: '14px',
+                  lineHeight: 1.5
+                }}>
+                  {item.message}
+                </p>
+                
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  fontSize: '12px', 
+                  color: 'var(--text-muted)'
+                }}>
+                  <span>{item.gym_id?.gym_display_name || item.gym_id?.gym_name || 'System'}</span>
+                  <span>{new Date(item.createdAt).toLocaleDateString()}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

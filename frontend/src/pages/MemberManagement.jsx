@@ -231,28 +231,49 @@ const MemberManagement = () => {
       title: 'Payment Status',
       dataIndex: 'paymentStatus',
       key: 'paymentStatus',
-      render: (status, record) => (
-        <div>
-          <Tag 
-            color={status === 'paid' ? 'green' : 'red'}
-            style={{ borderRadius: '20px', padding: '4px 12px', marginBottom: '4px' }}
-          >
-            {status.toUpperCase()}
-          </Tag>
-          {status === 'unpaid' && (
-            <div>
-              <Button 
-                size="small" 
-                type="link" 
-                onClick={() => handlePaymentUpdate(record)}
-                style={{ padding: 0, height: 'auto', fontSize: '12px' }}
-              >
-                Update Payment
-              </Button>
-            </div>
-          )}
-        </div>
-      )
+      render: (status, record) => {
+        const statusConfig = {
+          paid: { color: 'green', label: 'PAID' },
+          unpaid: { color: 'red', label: 'UNPAID' },
+          pending_verification: { color: 'orange', label: 'PENDING VERIFICATION' }
+        };
+        const config = statusConfig[status] || { color: 'default', label: status?.toUpperCase() };
+        
+        return (
+          <div>
+            <Tag 
+              color={config.color}
+              style={{ borderRadius: '20px', padding: '4px 12px', marginBottom: '4px' }}
+            >
+              {config.label}
+            </Tag>
+            {status === 'unpaid' && (
+              <div>
+                <Button 
+                  size="small" 
+                  type="link" 
+                  onClick={() => handlePaymentUpdate(record)}
+                  style={{ padding: 0, height: 'auto', fontSize: '12px' }}
+                >
+                  Update Payment
+                </Button>
+              </div>
+            )}
+            {status === 'pending_verification' && (
+              <div>
+                <Button 
+                  size="small" 
+                  type="link" 
+                  onClick={() => navigate('/gym/payment-requests')}
+                  style={{ padding: 0, height: 'auto', fontSize: '12px' }}
+                >
+                  View Payment Requests
+                </Button>
+              </div>
+            )}
+          </div>
+        );
+      }
     },
     {
       title: 'Status',

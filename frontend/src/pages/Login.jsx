@@ -30,11 +30,23 @@ const Login = () => {
           <h2>Admin Portal</h2>
         </div>
         
-        <Form onFinish={onLogin} layout="vertical">
-          <Form.Item name="email" rules={[{ required: true, type: 'email' }]}>
+        <Form onFinish={onLogin} layout="vertical" className="auth-form">
+          <Form.Item 
+            name="email" 
+            rules={[
+              { required: true, message: 'Please enter your email address' },
+              { type: 'email', message: 'Please enter a valid email address' }
+            ]}
+          >
             <Input prefix={<UserOutlined />} placeholder="Admin Email" size="large" />
           </Form.Item>
-          <Form.Item name="password" rules={[{ required: true }]}>
+          <Form.Item 
+            name="password" 
+            rules={[
+              { required: true, message: 'Please enter your password' },
+              { min: 6, message: 'Password must be at least 6 characters' }
+            ]}
+          >
             <Input.Password prefix={<LockOutlined />} placeholder="Admin Password" size="large" />
           </Form.Item>
           <Form.Item>

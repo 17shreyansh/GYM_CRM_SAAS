@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Space, Tag, message, Row, Col, Statistic, Typography, Input, Modal } from 'antd';
+import { Button, Tag, message, Input, Modal, Space } from 'antd';
 import { LoginOutlined, LogoutOutlined, QrcodeOutlined, ClockCircleOutlined, CameraOutlined } from '@ant-design/icons';
 import api from '../utils/api';
-
-const { Title, Text } = Typography;
 
 const MemberAttendance = () => {
   const [attendanceStatus, setAttendanceStatus] = useState(null);
@@ -62,162 +60,142 @@ const MemberAttendance = () => {
 
   return (
     <div>
-      <Title level={2}>My Attendance</Title>
-      
-      <Row gutter={16} style={{ marginBottom: 24 }}>
-        <Col span={8}>
-          <Card>
-            <Statistic 
-              title="Today's Status" 
-              value={
-                attendanceStatus?.todayAttendance && !attendanceStatus.todayAttendance.checkOutTime 
-                  ? 'In Gym' 
-                  : attendanceStatus?.todayAttendance?.checkOutTime 
-                    ? 'Completed' 
-                    : 'Not Checked In'
-              }
-              valueStyle={{ 
-                color: attendanceStatus?.todayAttendance && !attendanceStatus.todayAttendance.checkOutTime 
-                  ? '#3f8600' 
-                  : attendanceStatus?.todayAttendance?.checkOutTime 
-                    ? '#1890ff' 
-                    : '#666'
-              }}
-            />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card>
-            <Statistic 
-              title="Check-in Time" 
-              value={
-                attendanceStatus?.todayAttendance?.checkInTime 
-                  ? formatTime(attendanceStatus.todayAttendance.checkInTime)
-                  : 'Not checked in'
-              }
-              prefix={<ClockCircleOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card>
-            <Statistic 
-              title="Duration" 
-              value={
-                attendanceStatus?.todayAttendance?.duration 
-                  ? `${Math.floor(attendanceStatus.todayAttendance.duration / 60)}h ${attendanceStatus.todayAttendance.duration % 60}m`
-                  : attendanceStatus?.todayAttendance && !attendanceStatus.todayAttendance.checkOutTime
-                    ? 'Active'
-                    : 'N/A'
-              }
-            />
-          </Card>
-        </Col>
-      </Row>
+      <div className="mobile-stats-grid">
+        <div className={`mobile-stat-card ${
+          attendanceStatus?.todayAttendance && !attendanceStatus.todayAttendance.checkOutTime 
+            ? 'gradient-card' : ''
+        }`}>
+          <div className="mobile-stat-icon">
+            <LoginOutlined />
+          </div>
+          <div className="mobile-stat-value">
+            {attendanceStatus?.todayAttendance && !attendanceStatus.todayAttendance.checkOutTime 
+              ? 'In Gym' 
+              : attendanceStatus?.todayAttendance?.checkOutTime 
+                ? 'Completed' 
+                : 'Not Checked In'}
+          </div>
+          <div className="mobile-stat-label">Today's Status</div>
+        </div>
+        
+        <div className="mobile-stat-card">
+          <div className="mobile-stat-icon">
+            <ClockCircleOutlined />
+          </div>
+          <div className="mobile-stat-value">
+            {attendanceStatus?.todayAttendance?.checkInTime 
+              ? formatTime(attendanceStatus.todayAttendance.checkInTime)
+              : '--:--'}
+          </div>
+          <div className="mobile-stat-label">Check-in Time</div>
+        </div>
+        
+        <div className="mobile-stat-card">
+          <div className="mobile-stat-icon">
+            <ClockCircleOutlined />
+          </div>
+          <div className="mobile-stat-value">
+            {attendanceStatus?.todayAttendance?.duration 
+              ? `${Math.floor(attendanceStatus.todayAttendance.duration / 60)}h ${attendanceStatus.todayAttendance.duration % 60}m`
+              : attendanceStatus?.todayAttendance && !attendanceStatus.todayAttendance.checkOutTime
+                ? 'Active'
+                : 'N/A'}
+          </div>
+          <div className="mobile-stat-label">Duration</div>
+        </div>
+      </div>
 
-      <Row gutter={16}>
-        <Col span={12}>
-          <Card 
-            title={
-              <Space>
-                <QrcodeOutlined />
-                <span>QR Code Check-In</span>
-              </Space>
-            }
-            style={{ textAlign: 'center', minHeight: '400px' }}
-          >
-            <div>
-              <div style={{ marginBottom: 16 }}>
-                <Text strong>Gym: {attendanceStatus?.gym?.gym_name || 'Loading...'}</Text>
-              </div>
-              
-              <div style={{ marginBottom: 24, padding: 40 }}>
-                <CameraOutlined style={{ fontSize: 80, color: '#1890ff' }} />
-                <div style={{ marginTop: 16 }}>
-                  <Text>Scan gym's QR code to check-in</Text>
-                </div>
-              </div>
-              
-              <Space direction="vertical" style={{ width: '100%' }}>
-                <Button 
-                  type="primary" 
-                  size="large"
-                  icon={<QrcodeOutlined />}
-                  onClick={() => setQrModalVisible(true)}
-                  disabled={!attendanceStatus?.canCheckIn}
-                  block
-                >
-                  {attendanceStatus?.canCheckIn ? 'Scan QR Code' : 'Already Checked In'}
-                </Button>
-                
-                <Button 
-                  size="large"
-                  icon={<LogoutOutlined />}
-                  onClick={handleQRCheckOut}
-                  disabled={!attendanceStatus?.canCheckOut}
-                  loading={loading}
-                  block
-                >
-                  {attendanceStatus?.canCheckOut ? 'Check Out' : 'Not Checked In'}
-                </Button>
-              </Space>
+      <div className="mobile-card">
+        <div className="mobile-card-body" style={{ textAlign: 'center' }}>
+          <h3 style={{ margin: '0 0 16px 0', color: 'var(--text-primary)' }}>
+            📍 {attendanceStatus?.gym?.gym_name || 'Loading...'}
+          </h3>
+          
+          <div style={{ margin: '32px 0', padding: '40px 20px', background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-lg)' }}>
+            <CameraOutlined style={{ fontSize: 64, color: 'var(--primary-color)', marginBottom: 16 }} />
+            <div style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
+              Scan gym's QR code to check-in
             </div>
-          </Card>
-        </Col>
+          </div>
+          
+          <div style={{ display: 'grid', gap: '12px' }}>
+            <Button 
+              type="primary" 
+              size="large"
+              icon={<QrcodeOutlined />}
+              onClick={() => setQrModalVisible(true)}
+              disabled={!attendanceStatus?.canCheckIn}
+              block
+            >
+              {attendanceStatus?.canCheckIn ? 'Scan QR Code' : 'Already Checked In'}
+            </Button>
+            
+            <Button 
+              size="large"
+              icon={<LogoutOutlined />}
+              onClick={handleQRCheckOut}
+              disabled={!attendanceStatus?.canCheckOut}
+              loading={loading}
+              block
+            >
+              {attendanceStatus?.canCheckOut ? 'Check Out' : 'Not Checked In'}
+            </Button>
+          </div>
+        </div>
+      </div>
 
-        <Col span={12}>
-          <Card title="Today's Details">
-            {attendanceStatus?.todayAttendance ? (
-              <div>
-                <Space direction="vertical" style={{ width: '100%' }}>
-                  <div>
-                    <Text strong>Check-in Time: </Text>
-                    <Tag color="green">{formatTime(attendanceStatus.todayAttendance.checkInTime)}</Tag>
-                  </div>
-                  
-                  {attendanceStatus.todayAttendance.checkOutTime && (
-                    <div>
-                      <Text strong>Check-out Time: </Text>
-                      <Tag color="blue">{formatTime(attendanceStatus.todayAttendance.checkOutTime)}</Tag>
-                    </div>
-                  )}
-                  
-                  <div>
-                    <Text strong>Method: </Text>
-                    <Tag color={attendanceStatus.todayAttendance.checkInMethod === 'qr' ? 'purple' : 'orange'}>
-                      {attendanceStatus.todayAttendance.checkInMethod === 'qr' ? 'QR Code' : 'Manual'}
-                    </Tag>
-                  </div>
-                  
-                  {attendanceStatus.todayAttendance.duration && (
-                    <div>
-                      <Text strong>Total Duration: </Text>
-                      <Tag color="cyan">
-                        {Math.floor(attendanceStatus.todayAttendance.duration / 60)}h {attendanceStatus.todayAttendance.duration % 60}m
-                      </Tag>
-                    </div>
-                  )}
-                  
-                  {!attendanceStatus.todayAttendance.checkOutTime && (
-                    <div style={{ marginTop: 16 }}>
-                      <Tag color="green" style={{ fontSize: '14px', padding: '8px 12px' }}>
-                        Currently in gym - Don't forget to check out!
-                      </Tag>
-                    </div>
-                  )}
-                </Space>
+      {attendanceStatus?.todayAttendance && (
+        <div className="mobile-card">
+          <div className="mobile-card-header">
+            <h3 style={{ margin: 0, color: 'var(--text-primary)' }}>Today's Session</h3>
+          </div>
+          <div className="mobile-card-body">
+            <div style={{ display: 'grid', gap: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: 'var(--text-secondary)' }}>Check-in</span>
+                <Tag color="green">{formatTime(attendanceStatus.todayAttendance.checkInTime)}</Tag>
               </div>
-            ) : (
-              <div style={{ textAlign: 'center', padding: '40px 0' }}>
-                <Text type="secondary">No attendance record for today</Text>
-                <div style={{ marginTop: 16 }}>
-                  <Text>Use the QR code or check-in button to start your session</Text>
+              
+              {attendanceStatus.todayAttendance.checkOutTime && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: 'var(--text-secondary)' }}>Check-out</span>
+                  <Tag color="blue">{formatTime(attendanceStatus.todayAttendance.checkOutTime)}</Tag>
                 </div>
+              )}
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: 'var(--text-secondary)' }}>Method</span>
+                <Tag color={attendanceStatus.todayAttendance.checkInMethod === 'qr' ? 'purple' : 'orange'}>
+                  {attendanceStatus.todayAttendance.checkInMethod === 'qr' ? 'QR Code' : 'Manual'}
+                </Tag>
               </div>
-            )}
-          </Card>
-        </Col>
-      </Row>
+              
+              {attendanceStatus.todayAttendance.duration && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: 'var(--text-secondary)' }}>Duration</span>
+                  <Tag color="cyan">
+                    {Math.floor(attendanceStatus.todayAttendance.duration / 60)}h {attendanceStatus.todayAttendance.duration % 60}m
+                  </Tag>
+                </div>
+              )}
+              
+              {!attendanceStatus.todayAttendance.checkOutTime && (
+                <div style={{ 
+                  background: 'rgb(16 185 129 / 0.1)', 
+                  padding: '12px', 
+                  borderRadius: 'var(--radius-md)', 
+                  textAlign: 'center',
+                  color: 'var(--success-color)',
+                  fontSize: '14px',
+                  fontWeight: 500
+                }}>
+                  🟢 Currently in gym - Don't forget to check out!
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <Modal
         title="Scan Gym QR Code"

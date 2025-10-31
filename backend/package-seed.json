@@ -1,5 +1,5 @@
 {
   "scripts": {
-    "seed": "node src/utils/seeder.js"
+    "seed:gym": "node scripts/seedGym.js"
   }
 }

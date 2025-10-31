@@ -270,7 +270,7 @@ export const getMemberProfile = async (req, res) => {
     }
 
     // Get attendance data
-    const Attendance = (await import('../models/Attendance.js')).default;
+    const { default: Attendance } = await import('../models/Attendance.js');
     const attendanceRecords = await Attendance.find({ member: member._id })
       .sort({ checkInTime: -1 })
       .limit(30);
@@ -339,7 +339,7 @@ export const sendMemberNotification = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Cannot send notifications to offline members' });
     }
 
-    const Notification = (await import('../models/Notification.js')).default;
+    const { default: Notification } = await import('../models/Notification.js');
     const notification = new Notification({
       recipient_id: member.user,
       recipient_type: 'member',

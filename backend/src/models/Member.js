@@ -4,9 +4,16 @@ const memberSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   gym: { type: mongoose.Schema.Types.ObjectId, ref: 'Gym', required: true },
   plan: { type: mongoose.Schema.Types.ObjectId, ref: 'Plan' },
-  joinMethod: { type: String, enum: ['online', 'cash'], required: true },
+  joinMethod: { type: String, enum: ['qr', 'manual'], required: true },
   status: { type: String, enum: ['pending', 'active', 'rejected', 'suspended'], default: 'pending' },
-  paymentStatus: { type: String, enum: ['paid', 'unpaid'], default: 'unpaid' },
+  paymentStatus: { type: String, enum: ['paid', 'unpaid', 'pending_verification'], default: 'unpaid' },
+  paymentProof: {
+    image: String, // Screenshot of payment
+    transaction_id: String,
+    amount: Number,
+    payment_date: Date,
+    notes: String
+  },
   startDate: Date,
   endDate: Date,
   attendanceCount: { type: Number, default: 0 },

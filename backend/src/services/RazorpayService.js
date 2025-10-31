@@ -29,7 +29,11 @@ class RazorpayService {
         amount: Math.round(amount * 100), // Convert to paise
         currency,
         receipt,
-        notes
+        notes: {
+          ...notes,
+          platform: 'ORDIIN',
+          description: 'Gym membership payment via ORDIIN'
+        }
       });
       
       console.log('Razorpay order created:', order);

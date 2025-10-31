@@ -2,6 +2,9 @@ import Gym from '../models/Gym.js';
 import User from '../models/User.js';
 import Subscription from '../models/Subscription.js';
 import SubscriptionPlan from '../models/SubscriptionPlan.js';
+import Member from '../models/Member.js';
+import Payment from '../models/Payment.js';
+import Plan from '../models/Plan.js';
 
 // Create gym with comprehensive data
 export const createGym = async (req, res) => {
@@ -27,6 +30,7 @@ export const createGym = async (req, res) => {
       pan_number,
       business_number,
       bank_details,
+      payment_qr_code,
       plan_type = 'basic'
     } = req.body;
 
@@ -51,6 +55,10 @@ export const createGym = async (req, res) => {
       });
     }
 
+    // Handle payment QR code upload - will save after gym creation
+    let qrCodeUrl = payment_qr_code || '';
+    let hasQRFile = !!req.file;
+
     const gym = new Gym({
       gym_name,
       owner_full_name,
@@ -66,12 +74,38 @@ export const createGym = async (req, res) => {
       pan_number,
       business_number,
       bank_details,
+      payment_settings: {
+        qr_code_image: hasQRFile ? `/uploads/gyms/temp/payment_qr.jpg` : qrCodeUrl,
+        manual_approval: true
+      },
       plan_type: (plan_type || 'basic').trim().toLowerCase(),
       owner_user_id: req.user._id,
       status: 'active'
     });
 
     await gym.save();
+    
+    // Save payment QR code file with proper gym ID
+    if (hasQRFile && req.file) {
+      const fs = await import('fs');
+      const path = await import('path');
+      const { fileURLToPath } = await import('url');
+      const __dirname = path.dirname(fileURLToPath(import.meta.url));
+      
+      const gymDir = path.join(__dirname, '../../uploads/gyms', gym._id.toString());
+      if (!fs.existsSync(gymDir)) {
+        fs.mkdirSync(gymDir, { recursive: true });
+      }
+      
+      const fileName = 'payment_qr.jpg';
+      const filePath = path.join(gymDir, fileName);
+      fs.writeFileSync(filePath, req.file.buffer);
+      
+      // Update gym with correct payment QR code path
+      gym.payment_settings.qr_code_image = `/uploads/gyms/${gym._id}/${fileName}`;
+      await gym.save();
+    }
+
     res.status(201).json({ success: true, gym });
   } catch (error) {
     console.error('Gym creation error:', error);
@@ -111,6 +145,29 @@ export const updateGymDetails = async (req, res) => {
         'status', 'subscription_status', 'createdAt', 'updatedAt'];
       
       nonEditableFields.forEach(field => delete updateData[field]);
+    }
+
+    // Handle payment QR code upload
+    if (req.file) {
+      const fs = await import('fs');
+      const path = await import('path');
+      const { fileURLToPath } = await import('url');
+      const __dirname = path.dirname(fileURLToPath(import.meta.url));
+      
+      const uploadDir = path.join(__dirname, '../../uploads/gyms', gymId);
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+      
+      const fileName = 'payment_qr.jpg';
+      const filePath = path.join(uploadDir, fileName);
+      fs.writeFileSync(filePath, req.file.buffer);
+      
+      // Update payment settings with new QR code path
+      if (!updateData.payment_settings) {
+        updateData.payment_settings = {};
+      }
+      updateData.payment_settings.qr_code_image = `/uploads/gyms/${gymId}/${fileName}`;
     }
 
     const gym = await Gym.findOneAndUpdate(
@@ -313,3 +370,151 @@ export const updateGymStatus = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
+// Get payment settings
+export const getPaymentSettings = async (req, res) => {
+  try {
+    const gym = await Gym.findOne({ owner_user_id: req.user._id });
+    if (!gym) {
+      return res.status(404).json({ success: false, message: 'Gym not found' });
+    }
+
+    res.json({ 
+      success: true, 
+      payment_settings: gym.payment_settings || {
+        qr_code_image: null,
+        upi_id: '',
+        payment_instructions: '',
+        manual_approval: true
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Update payment settings
+export const updatePaymentSettings = async (req, res) => {
+  try {
+    const { qr_code_image, upi_id, payment_instructions, manual_approval } = req.body;
+    
+    const gym = await Gym.findOneAndUpdate(
+      { owner_user_id: req.user._id },
+      { 
+        payment_settings: {
+          qr_code_image,
+          upi_id,
+          payment_instructions,
+          manual_approval: manual_approval !== false
+        }
+      },
+      { new: true }
+    );
+
+    if (!gym) {
+      return res.status(404).json({ success: false, message: 'Gym not found' });
+    }
+
+    res.json({ success: true, payment_settings: gym.payment_settings });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+// Get payment requests
+export const getPaymentRequests = async (req, res) => {
+  try {
+    const gym = await Gym.findOne({ owner_user_id: req.user._id });
+    if (!gym) {
+      return res.status(404).json({ success: false, message: 'Gym not found' });
+    }
+
+
+    
+    const paymentRequests = await Payment.find({
+      gym: gym._id,
+      source: 'qr_manual',
+      status: 'pending_verification'
+    })
+    .populate('member', 'user isOfflineMember offlineDetails')
+    .populate({
+      path: 'member',
+      populate: {
+        path: 'user',
+        select: 'name email phone'
+      }
+    })
+    .sort({ createdAt: -1 });
+
+    res.json({ success: true, payment_requests: paymentRequests });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Verify payment
+export const verifyPayment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, notes } = req.body; // 'approved' or 'rejected'
+    
+    const gym = await Gym.findOne({ owner_user_id: req.user._id });
+    if (!gym) {
+      return res.status(404).json({ success: false, message: 'Gym not found' });
+    }
+
+
+    
+    const payment = await Payment.findOne({ _id: id, gym: gym._id });
+    if (!payment) {
+      return res.status(404).json({ success: false, message: 'Payment request not found' });
+    }
+
+    if (status === 'approved') {
+      payment.status = 'completed';
+      payment.verifiedBy = req.user._id;
+      payment.verificationDate = new Date();
+      
+      // Update member status
+      const member = await Member.findById(payment.member);
+      if (member) {
+        member.status = 'active';
+        member.paymentStatus = 'paid';
+        
+        // Set membership dates
+        let planDuration;
+        if (member.customPlan?.isCustom) {
+          planDuration = member.customPlan.duration;
+        } else {
+          const plan = await Plan.findById(member.plan);
+          planDuration = plan?.duration || 30;
+        }
+        
+        member.startDate = new Date();
+        member.endDate = new Date(Date.now() + planDuration * 24 * 60 * 60 * 1000);
+        await member.save();
+      }
+    } else {
+      payment.status = 'failed';
+      payment.verifiedBy = req.user._id;
+      payment.verificationDate = new Date();
+      
+      // Update member status to rejected
+      await Member.findByIdAndUpdate(payment.member, { 
+        status: 'rejected',
+        paymentStatus: 'unpaid'
+      });
+    }
+    
+    if (notes) {
+      payment.paymentProof.notes = notes;
+    }
+    
+    await payment.save();
+    
+    res.json({ success: true, payment });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+

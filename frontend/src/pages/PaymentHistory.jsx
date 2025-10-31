@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Table, Tag, DatePicker, Select, Row, Col, Statistic, Button } from 'antd';
-import { CreditCardOutlined, DollarOutlined, CalendarOutlined, DownloadOutlined } from '@ant-design/icons';
+import { Card, Table, Tag, DatePicker, Select, Button } from 'antd';
+import { CreditCardOutlined, DollarOutlined, DownloadOutlined } from '@ant-design/icons';
 import api from '../utils/api';
 import dayjs from 'dayjs';
 
@@ -133,112 +133,97 @@ const PaymentHistory = () => {
 
   return (
     <div>
-      {/* Stats Cards */}
-      <Row gutter={16} style={{ marginBottom: 24 }}>
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title="Total Spent"
-              value={stats.total}
-              prefix="₹"
-              precision={2}
-              valueStyle={{ color: '#3f8600' }}
-            />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title="Online Payments"
-              value={stats.online}
-              prefix="₹"
-              precision={2}
-              valueStyle={{ color: '#1890ff' }}
-            />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title="Cash Payments"
-              value={stats.cash}
-              prefix="₹"
-              precision={2}
-              valueStyle={{ color: '#52c41a' }}
-            />
-          </Card>
-        </Col>
-      </Row>
+      <div className="mobile-stats-grid">
+        <div className="mobile-stat-card gradient-card">
+          <div className="mobile-stat-icon">
+            <DollarOutlined />
+          </div>
+          <div className="mobile-stat-value">₹{stats.total.toFixed(0)}</div>
+          <div className="mobile-stat-label">Total Spent</div>
+        </div>
+        
+        <div className="mobile-stat-card">
+          <div className="mobile-stat-icon" style={{ background: 'var(--primary-color)' }}>
+            <CreditCardOutlined />
+          </div>
+          <div className="mobile-stat-value">₹{stats.online.toFixed(0)}</div>
+          <div className="mobile-stat-label">Online Payments</div>
+        </div>
+        
+        <div className="mobile-stat-card">
+          <div className="mobile-stat-icon" style={{ background: 'var(--success-color)' }}>
+            <DollarOutlined />
+          </div>
+          <div className="mobile-stat-value">₹{stats.cash.toFixed(0)}</div>
+          <div className="mobile-stat-label">Cash Payments</div>
+        </div>
+      </div>
 
-      {/* Filters */}
-      <Card style={{ marginBottom: 24 }}>
-        <Row gutter={16} align="middle">
-          <Col span={8}>
+      <div className="mobile-card">
+        <div className="mobile-card-body">
+          <div style={{ display: 'grid', gap: '12px' }}>
             <RangePicker
               value={dateRange}
               onChange={setDateRange}
               style={{ width: '100%' }}
               placeholder={['Start Date', 'End Date']}
             />
-          </Col>
-          <Col span={4}>
-            <Select
-              value={statusFilter}
-              onChange={setStatusFilter}
-              style={{ width: '100%' }}
-              placeholder="Status"
-            >
-              <Option value="all">All Status</Option>
-              <Option value="completed">Completed</Option>
-              <Option value="pending">Pending</Option>
-              <Option value="failed">Failed</Option>
-            </Select>
-          </Col>
-          <Col span={4}>
-            <Select
-              value={sourceFilter}
-              onChange={setSourceFilter}
-              style={{ width: '100%' }}
-              placeholder="Method"
-            >
-              <Option value="all">All Methods</Option>
-              <Option value="razorpay">Online</Option>
-              <Option value="cash">Cash</Option>
-            </Select>
-          </Col>
-          <Col span={4}>
-            <Button 
-              icon={<DownloadOutlined />} 
-              onClick={exportPayments}
-              disabled={filteredPayments.length === 0}
-            >
-              Export CSV
-            </Button>
-          </Col>
-          <Col span={4}>
-            <Button 
-              onClick={() => {
-                setDateRange([]);
-                setStatusFilter('all');
-                setSourceFilter('all');
-              }}
-            >
-              Clear Filters
-            </Button>
-          </Col>
-        </Row>
-      </Card>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <Select
+                value={statusFilter}
+                onChange={setStatusFilter}
+                placeholder="Status"
+              >
+                <Option value="all">All Status</Option>
+                <Option value="completed">Completed</Option>
+                <Option value="pending">Pending</Option>
+                <Option value="failed">Failed</Option>
+              </Select>
+              
+              <Select
+                value={sourceFilter}
+                onChange={setSourceFilter}
+                placeholder="Method"
+              >
+                <Option value="all">All Methods</Option>
+                <Option value="razorpay">Online</Option>
+                <Option value="cash">Cash</Option>
+              </Select>
+            </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <Button 
+                icon={<DownloadOutlined />} 
+                onClick={exportPayments}
+                disabled={filteredPayments.length === 0}
+              >
+                Export
+              </Button>
+              
+              <Button 
+                onClick={() => {
+                  setDateRange([]);
+                  setStatusFilter('all');
+                  setSourceFilter('all');
+                }}
+              >
+                Clear
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      {/* Payments Table */}
       <Card title="Payment History">
         <Table
           dataSource={filteredPayments}
           columns={columns}
           rowKey="_id"
+          scroll={{ x: 800 }}
           pagination={{
             pageSize: 10,
             showSizeChanger: true,
-            showQuickJumper: true,
             showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} payments`,
           }}
         />
