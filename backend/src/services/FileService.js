@@ -4,12 +4,20 @@ import path from 'path';
 class FileService {
   constructor(storageType = 'local') {
     this.storageType = storageType;
-    this.baseUrl = process.env.BASE_URL ;
   }
 
-  async uploadFile(file, gymName, category) {
+  getBaseUrl(req) {
+    if (process.env.BASE_URL) {
+      return process.env.BASE_URL;
+    }
+    const protocol = req.secure || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
+    const host = req.headers['x-forwarded-host'] || req.headers.host;
+    return `${protocol}://${host}`;
+  }
+
+  async uploadFile(file, gymName, category, req) {
     if (this.storageType === 'local') {
-      return this.uploadToLocal(file, gymName, category);
+      return this.uploadToLocal(file, gymName, category, req);
     }
     throw new Error(`Storage type ${this.storageType} not implemented`);
   }
@@ -21,7 +29,7 @@ class FileService {
     throw new Error(`Storage type ${this.storageType} not implemented`);
   }
 
-  uploadToLocal(file, entityName, category) {
+  uploadToLocal(file, entityName, category, req) {
     const sanitizedName = entityName.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
     
     // Determine upload directory based on entity type
@@ -49,12 +57,13 @@ class FileService {
       `/uploads/users/${fileName}` :
       `/uploads/gyms/${sanitizedName}/${fileName}`;
     
-    return `${this.baseUrl}${relativePath}`;
+    return `${this.getBaseUrl(req)}${relativePath}`;
   }
 
   deleteFromLocal(fileUrl) {
     try {
-      const relativePath = fileUrl.replace(this.baseUrl, '');
+      const urlObj = new URL(fileUrl);
+      const relativePath = urlObj.pathname;
       const fullPath = path.join(process.cwd(), relativePath);
       
       if (fs.existsSync(fullPath)) {

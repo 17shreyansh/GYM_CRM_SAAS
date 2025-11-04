@@ -22,7 +22,7 @@ export const uploadGymFiles = async (req, res) => {
     const uploadedFiles = [];
     
     for (const file of req.files) {
-      const fileUrl = await FileService.uploadFile(file, gym.gym_display_name || gym.gym_name, category);
+      const fileUrl = await FileService.uploadFile(file, gym.gym_display_name || gym.gym_name, category, req);
       uploadedFiles.push(fileUrl);
     }
 
