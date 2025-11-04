@@ -4,7 +4,7 @@ import path from 'path';
 class FileService {
   constructor(storageType = 'local') {
     this.storageType = storageType;
-    this.baseUrl = process.env.BASE_URL || 'http://localhost:5000';
+    this.baseUrl = process.env.BASE_URL ;
   }
 
   async uploadFile(file, gymName, category) {
