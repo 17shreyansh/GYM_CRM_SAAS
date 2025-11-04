@@ -427,3 +427,306 @@ body {
   background: rgb(220 38 38 / 0.1);
   color: var(--error-color);
 }
+
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+  .ant-layout-content {
+    padding: 12px !important;
+  }
+  
+  .ant-card-body {
+    padding: 16px !important;
+  }
+  
+  .ant-card-head {
+    padding: 16px !important;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .quick-actions {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+/* Mobile Stats Cards */
+.mobile-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.mobile-stat-card {
+  background: var(--bg-primary);
+  padding: 16px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  text-align: center;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.mobile-stat-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.mobile-stat-card.gradient-card {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+  color: white;
+}
+
+.mobile-stat-card.gradient-card .mobile-stat-icon {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.mobile-stat-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background: rgb(99 102 241 / 0.1);
+  color: var(--primary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 8px;
+  font-size: 16px;
+}
+
+.mobile-stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.mobile-stat-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 4px 0 0 0;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.gradient-card .mobile-stat-value,
+.gradient-card .mobile-stat-label {
+  color: white;
+}
+
+/* Mobile Action Cards */
+.mobile-action-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.mobile-action-card {
+  background: var(--bg-primary);
+  padding: 16px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+}
+
+.mobile-action-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  border-color: var(--primary-color);
+  color: inherit;
+}
+
+.mobile-action-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background: rgb(99 102 241 / 0.1);
+  color: var(--primary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 8px;
+  font-size: 16px;
+}
+
+.mobile-action-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.3;
+}
+
+/* Mobile Card */
+.mobile-card {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.mobile-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.mobile-card-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-tertiary);
+}
+
+.mobile-card-body {
+  padding: 16px;
+}
+
+/* QR Scanner specific styles */
+.qr-scanner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qr-scanner-container {
+  width: 90%;
+  max-width: 400px;
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  text-align: center;
+}
+
+.qr-video-container {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto 16px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: #000;
+}
+
+.qr-video {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.qr-scanning-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 200px;
+  border: 2px solid #1890ff;
+  border-radius: var(--radius-lg);
+  background: rgba(24, 144, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qr-scanning-text {
+  color: #1890ff;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 480px) {
+  .mobile-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .mobile-action-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .mobile-stat-card {
+    padding: 12px;
+  }
+  
+  .mobile-action-card {
+    padding: 12px;
+  }
+  
+  .mobile-stat-value {
+    font-size: 18px;
+  }
+  
+  .mobile-stat-label {
+    font-size: 11px;
+  }
+  
+  .mobile-action-title {
+    font-size: 11px;
+  }
+  
+  .qr-scanning-overlay {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .qr-scanning-text {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+}
+
+/* QR Scanner animations */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(24, 144, 255, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(24, 144, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(24, 144, 255, 0);
+  }
+}
+
+@keyframes scanLine {
+  0% {
+    top: 0;
+  }
+  100% {
+    top: 100%;
+  }
+}
+
+.qr-scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #1890ff, transparent);
+  animation: scanLine 2s linear infinite;
+}

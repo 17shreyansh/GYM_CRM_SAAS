@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Tag, message, Input, Modal, Space } from 'antd';
+import { Button, Tag, message } from 'antd';
 import { LoginOutlined, LogoutOutlined, QrcodeOutlined, ClockCircleOutlined, CameraOutlined } from '@ant-design/icons';
 import api from '../utils/api';
+import QRScanner from '../components/QRScanner';
+import ManualQRInput from '../components/ManualQRInput';
 
 const MemberAttendance = () => {
   const [attendanceStatus, setAttendanceStatus] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [qrModalVisible, setQrModalVisible] = useState(false);
-  const [qrInput, setQrInput] = useState('');
+  const [qrScannerVisible, setQrScannerVisible] = useState(false);
+  const [manualInputVisible, setManualInputVisible] = useState(false);
 
   useEffect(() => {
     fetchAttendanceStatus();
@@ -24,13 +26,19 @@ const MemberAttendance = () => {
 
 
 
-  const handleQRScan = async () => {
+  const handleQRScan = async (qrData) => {
+    if (qrData === 'MANUAL_INPUT_MODE') {
+      setQrScannerVisible(false);
+      setManualInputVisible(true);
+      return;
+    }
+
     setLoading(true);
     try {
-      const response = await api.post('/member/attendance/scan-qr', { qrData: qrInput });
+      const response = await api.post('/member/attendance/scan-qr', { qrData });
       message.success(`Checked in successfully at ${response.data.member.name}!`);
-      setQrModalVisible(false);
-      setQrInput('');
+      setQrScannerVisible(false);
+      setManualInputVisible(false);
       fetchAttendanceStatus();
     } catch (error) {
       message.error(error.response?.data?.message || 'QR scan failed');
@@ -123,11 +131,18 @@ const MemberAttendance = () => {
               type="primary" 
               size="large"
               icon={<QrcodeOutlined />}
-              onClick={() => setQrModalVisible(true)}
+              onClick={() => setQrScannerVisible(true)}
               disabled={!attendanceStatus?.canCheckIn}
               block
+              style={{ 
+                background: 'linear-gradient(135deg, #1890ff 0%, #096dd9 100%)',
+                border: 'none',
+                height: '48px',
+                fontSize: '16px',
+                fontWeight: '600'
+              }}
             >
-              {attendanceStatus?.canCheckIn ? 'Scan QR Code' : 'Already Checked In'}
+              {attendanceStatus?.canCheckIn ? '📱 Scan QR Code' : 'Already Checked In'}
             </Button>
             
             <Button 
@@ -197,41 +212,19 @@ const MemberAttendance = () => {
         </div>
       )}
 
-      <Modal
-        title="Scan Gym QR Code"
-        open={qrModalVisible}
-        onCancel={() => {
-          setQrModalVisible(false);
-          setQrInput('');
-        }}
-        footer={[
-          <Button key="cancel" onClick={() => {
-            setQrModalVisible(false);
-            setQrInput('');
-          }}>
-            Cancel
-          </Button>,
-          <Button key="scan" type="primary" onClick={handleQRScan} loading={loading}>
-            Check In
-          </Button>
-        ]}
-      >
-        <Space direction="vertical" style={{ width: '100%' }}>
-          <div style={{ textAlign: 'center', marginBottom: 16 }}>
-            <CameraOutlined style={{ fontSize: 48, color: '#1890ff' }} />
-            <div style={{ marginTop: 8 }}>Scan or Paste QR Code Data</div>
-          </div>
-          <Input.TextArea
-            placeholder="Paste the gym's QR code data here..."
-            value={qrInput}
-            onChange={(e) => setQrInput(e.target.value)}
-            rows={4}
-          />
-          <div style={{ fontSize: 12, color: '#666' }}>
-            Note: In production, this would open camera scanner. For now, paste QR data from gym's display.
-          </div>
-        </Space>
-      </Modal>
+      <QRScanner
+        visible={qrScannerVisible}
+        onClose={() => setQrScannerVisible(false)}
+        onScan={handleQRScan}
+        loading={loading}
+      />
+
+      <ManualQRInput
+        visible={manualInputVisible}
+        onClose={() => setManualInputVisible(false)}
+        onSubmit={handleQRScan}
+        loading={loading}
+      />
     </div>
   );
 };
