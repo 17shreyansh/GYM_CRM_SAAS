@@ -13,7 +13,12 @@ import {
   checkTrialStatus,
   getAllTrialInfo,
   resetTrial,
-  extendTrial
+  extendTrial,
+  forceStartTrial,
+  pauseTrial,
+  resumeTrial,
+  forceExpireTrial,
+  bulkTrialOperation
 } from '../controllers/subscriptionController.js';
 import { protect, restrictTo } from '../middleware/auth.js';
 
@@ -28,6 +33,11 @@ router.delete('/admin/plans/:id', restrictTo('admin'), deleteSubscriptionPlan);
 router.get('/admin/trials', restrictTo('admin'), getAllTrialInfo);
 router.post('/admin/trials/:gymId/reset', restrictTo('admin'), resetTrial);
 router.post('/admin/trials/:gymId/extend', restrictTo('admin'), extendTrial);
+router.post('/admin/trials/:gymId/force-start', restrictTo('admin'), forceStartTrial);
+router.post('/admin/trials/:gymId/pause', restrictTo('admin'), pauseTrial);
+router.post('/admin/trials/:gymId/resume', restrictTo('admin'), resumeTrial);
+router.post('/admin/trials/:gymId/force-expire', restrictTo('admin'), forceExpireTrial);
+router.post('/admin/trials/bulk', restrictTo('admin'), bulkTrialOperation);
 
 // Gym owner routes
 router.get('/plans', getAvailablePlans);

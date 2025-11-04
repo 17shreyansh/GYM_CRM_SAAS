@@ -41,7 +41,7 @@ const GymOwnerRegister = () => {
         const existingGym = gymResponse.data.gym;
         setGymData(existingGym);
         
-        if (existingGym.subscription_status === 'active') {
+        if (existingGym.subscription_status === 'active' || existingGym.trial_status === 'active') {
           navigate('/gym');
           return;
         } else {
@@ -131,6 +131,16 @@ const GymOwnerRegister = () => {
       navigate('/gym');
     }
   };
+
+  // Check if user should skip subscription step due to active trial
+  useEffect(() => {
+    if (gymData && currentStep === 2) {
+      // Check if gym has active trial
+      if (gymData.trial_status === 'active') {
+        navigate('/gym');
+      }
+    }
+  }, [gymData, currentStep, navigate]);
 
   if (loading) {
     return (

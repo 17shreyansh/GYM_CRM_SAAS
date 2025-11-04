@@ -60,6 +60,37 @@ const GymDashboard = () => {
   const getStatusAlert = () => {
     const subscription = stats.subscription || {};
     const { status, plan_name, days_remaining } = subscription;
+    const trialInfo = stats.trial_info;
+    
+    // Handle trial status
+    if (status === 'trial' && trialInfo) {
+      if (days_remaining <= 7 && days_remaining > 0) {
+        return (
+          <Alert 
+            message="Free Trial Ending Soon" 
+            description={`Your 30-day free trial expires in ${days_remaining} days. Consider upgrading to continue access.`}
+            type="warning" 
+            showIcon 
+            icon={<ClockCircleOutlined />}
+            action={
+              <Button size="small" type="primary" onClick={() => navigate('/gym-owner-register')}>
+                View Plans
+              </Button>
+            }
+          />
+        );
+      }
+      
+      return (
+        <Alert 
+          message="🎉 Free Trial Active" 
+          description={`Your 30-day free trial is active with full access to all features. ${days_remaining} days remaining.`}
+          type="success" 
+          showIcon 
+          icon={<CheckCircleOutlined />}
+        />
+      );
+    }
     
     if (status === 'expired' || plan_name === 'No Plan') {
       return (
@@ -148,7 +179,7 @@ const GymDashboard = () => {
                 SUSPENDED
               </div>
             )}
-            <div className={`status-badge ${stats.subscription?.status === 'active' ? 'success' : 'warning'}`}>
+            <div className={`status-badge ${stats.subscription?.status === 'active' || stats.subscription?.status === 'trial' ? 'success' : 'warning'}`}>
               {stats.subscription?.plan_name || 'NO PLAN'}
             </div>
           </div>

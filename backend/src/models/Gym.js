@@ -89,7 +89,7 @@ const gymSchema = new mongoose.Schema({
   subscription_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Subscription' },
   subscription_plan: { type: mongoose.Schema.Types.ObjectId, ref: 'SubscriptionPlan' },
   subscription_end_date: Date,
-  trial_status: { type: String, enum: ['available', 'active', 'expired', 'used'], default: 'available' },
+  trial_status: { type: String, enum: ['available', 'active', 'expired', 'used', 'paused'], default: 'available' },
   trial_start_date: Date,
   trial_end_date: Date,
   last_login: Date,

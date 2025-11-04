@@ -181,6 +181,11 @@ const GymSetup = () => {
             <div className={`status-badge ${gym.verified ? 'success' : 'error'}`}>
               {gym.verified ? 'VERIFIED' : 'UNVERIFIED'}
             </div>
+            {gym.trial_status === 'active' && (
+              <div className="status-badge success">
+                FREE TRIAL
+              </div>
+            )}
           </Space>
         }
       >

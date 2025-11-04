@@ -214,3 +214,75 @@ export const extendTrial = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+export const forceStartTrial = async (req, res) => {
+  try {
+    const { customDuration } = req.body;
+    const result = await TrialService.forceStartTrial(req.params.gymId, customDuration);
+    
+    if (!result.success) {
+      return res.status(400).json({ success: false, message: result.error });
+    }
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const pauseTrial = async (req, res) => {
+  try {
+    const result = await TrialService.pauseTrial(req.params.gymId);
+    
+    if (!result.success) {
+      return res.status(400).json({ success: false, message: result.error });
+    }
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const resumeTrial = async (req, res) => {
+  try {
+    const result = await TrialService.resumeTrial(req.params.gymId);
+    
+    if (!result.success) {
+      return res.status(400).json({ success: false, message: result.error });
+    }
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const forceExpireTrial = async (req, res) => {
+  try {
+    const result = await TrialService.forceExpireTrial(req.params.gymId);
+    
+    if (!result.success) {
+      return res.status(400).json({ success: false, message: result.error });
+    }
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const bulkTrialOperation = async (req, res) => {
+  try {
+    const { gymIds, operation, options } = req.body;
+    const result = await TrialService.bulkTrialOperation(gymIds, operation, options);
+    
+    if (!result.success) {
+      return res.status(400).json({ success: false, message: result.error });
+    }
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

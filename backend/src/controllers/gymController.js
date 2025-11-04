@@ -106,6 +106,16 @@ export const createGym = async (req, res) => {
       await gym.save();
     }
 
+    // Automatically start 30-day trial for new gym
+    const TrialService = (await import('../services/TrialService.js')).default;
+    const trialResult = await TrialService.startTrial(req.user._id);
+    
+    if (trialResult.success) {
+      console.log('Trial started automatically for new gym:', gym.gym_name);
+    } else {
+      console.log('Failed to start trial for new gym:', trialResult.error);
+    }
+
     res.status(201).json({ success: true, gym });
   } catch (error) {
     console.error('Gym creation error:', error);
@@ -212,11 +222,12 @@ export const getGymDashboard = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Gym not found' });
     }
 
-    // Check subscription status but don't block access
-    const hasActiveSubscription = gym.subscription_id && gym.subscription_status === 'active' && gym.plan_type !== 'basic';
+    // Check subscription status including trial
+    const hasActiveSubscription = gym.subscription_id && gym.subscription_status === 'active';
+    const hasActiveTrial = gym.trial_status === 'active' && gym.trial_end_date && new Date() < new Date(gym.trial_end_date);
     
-    if (!hasActiveSubscription) {
-      // Return limited dashboard data for users without subscription
+    if (!hasActiveSubscription && !hasActiveTrial) {
+      // Return limited dashboard data for users without subscription or trial
       return res.json({
         success: true,
         data: {
@@ -242,7 +253,7 @@ export const getGymDashboard = async (req, res) => {
       });
     }
 
-    // Get current subscription
+    // Get current subscription or trial info
     const currentSubscription = await Subscription.findOne({
       gym_id: gym._id
     }).sort({ createdAt: -1 }).populate('plan_id');
@@ -254,7 +265,26 @@ export const getGymDashboard = async (req, res) => {
       status: 'expired'
     };
 
-    if (currentSubscription) {
+    // Check trial status first
+    if (gym.trial_status === 'active' && gym.trial_end_date) {
+      const now = new Date();
+      const trialEndDate = new Date(gym.trial_end_date);
+      const daysRemaining = Math.max(0, Math.ceil((trialEndDate - now) / (1000 * 60 * 60 * 24)));
+      
+      if (daysRemaining > 0) {
+        subscriptionData = {
+          plan_name: 'Free Trial',
+          days_remaining: daysRemaining,
+          end_date: gym.trial_end_date,
+          status: 'trial'
+        };
+      } else {
+        // Trial expired, update status
+        gym.trial_status = 'expired';
+        gym.subscription_status = 'expired';
+        await gym.save();
+      }
+    } else if (currentSubscription) {
       const now = new Date();
       const endDate = new Date(currentSubscription.end_date);
       const daysRemaining = Math.max(0, Math.ceil((endDate - now) / (1000 * 60 * 60 * 24)));
@@ -284,6 +314,12 @@ export const getGymDashboard = async (req, res) => {
         subscription_status: subscriptionData.status
       },
       subscription: subscriptionData,
+      trial_info: gym.trial_status === 'active' ? {
+        status: gym.trial_status,
+        start_date: gym.trial_start_date,
+        end_date: gym.trial_end_date,
+        days_remaining: subscriptionData.status === 'trial' ? subscriptionData.days_remaining : 0
+      } : null,
       analytics: gym.analytics || {
         active_members: 0,
         total_visitors: 0,

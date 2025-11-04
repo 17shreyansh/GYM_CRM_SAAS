@@ -20,19 +20,44 @@ export const checkSubscription = async (req, res, next) => {
       });
     }
 
-    // Check if subscription exists and is active
-    if (!gym.subscription_id || gym.subscription_status !== 'active' || gym.plan_type === 'basic') {
+    // Check if subscription or trial is active
+    const hasActiveSubscription = gym.subscription_id && gym.subscription_status === 'active' && gym.plan_type !== 'basic';
+    const hasActiveTrial = gym.trial_status === 'active' && gym.trial_end_date && new Date() < new Date(gym.trial_end_date);
+    const hasTrialPaused = gym.trial_status === 'paused';
+    
+    if (!hasActiveSubscription && !hasActiveTrial) {
+      // Check if trial has expired
+      if (gym.trial_status === 'active' && gym.trial_end_date && new Date() >= new Date(gym.trial_end_date)) {
+        await Gym.findByIdAndUpdate(gym._id, { 
+          trial_status: 'expired',
+          subscription_status: 'expired' 
+        });
+        return res.status(403).json({ 
+          success: false, 
+          message: 'Trial period expired. Please subscribe to continue.',
+          trial_expired: true 
+        });
+      }
+      
+      // Check if trial is paused
+      if (hasTrialPaused) {
+        return res.status(403).json({ 
+          success: false, 
+          message: 'Trial is currently paused by admin. Please contact support.',
+          trial_paused: true 
+        });
+      }
+      
       return res.status(403).json({ 
         success: false, 
-        message: 'Active subscription required to access gym features',
+        message: 'Active subscription or trial required to access gym features',
         subscription_required: true,
         current_plan: gym.plan_type || 'none'
       });
     }
 
-    // Check if subscription has expired
-    if (gym.subscription_end_date && new Date() > gym.subscription_end_date) {
-      // Update status to expired
+    // Check if paid subscription has expired (trial expiry handled above)
+    if (hasActiveSubscription && gym.subscription_end_date && new Date() > gym.subscription_end_date) {
       await Gym.findByIdAndUpdate(gym._id, { subscription_status: 'expired' });
       return res.status(403).json({ 
         success: false, 
@@ -41,7 +66,9 @@ export const checkSubscription = async (req, res, next) => {
       });
     }
 
+    // Add trial info to request
     req.gym = gym;
+    req.isTrialUser = hasActiveTrial;
     next();
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
